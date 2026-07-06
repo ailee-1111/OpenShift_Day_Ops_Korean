@@ -2,7 +2,7 @@
 
 == Module Overview
 
-**Duration:** 20 minutes +
+**Duration:** 15-20 minutes +
 **Format:** Hands-on lab +
 **Audience:** Security Engineers, Platform Engineers, IT Operations
 
@@ -18,7 +18,23 @@ By the end of this module, you will:
 * Setup compliance reporting and compliance checks
 * Scan workloads with Red Hat Advanced Cluster Security (RHACS)
 
+== Ensure access to the ACS console
+
+The RHACS Web Console provides a unified securityview of your clusters. We recommend that you use the embedded browser tab for this workshop.
+
+TIP: If you see an authentication error, click **Try Again** or reload the tab at the top and try again.
+
+RHACS administrator login credentials:
+
+[cols="1,1"]
+|===
+| *Username:* | {openshift_cluster_admin_username}
+| *Password:* | {openshift_cluster_admin_password}
+|===
+
 == Deploy a bunch of insecure applications
+
+Let's deploy a bunch of insecure applications to the cluster. This will help us demonstrate the capabilities of RHACS.
 
 .Procedure
 . Run the following command in your terminal to deploy the insecure applications:
@@ -208,6 +224,7 @@ This view shows you the details of the check for the production cluster. As you 
 ====
 +
 . And you can run the verification step to ensure the check is passing.
+
 +
 [source,sh,subs="attributes",role=execute]
 ----
@@ -414,6 +431,7 @@ oc delete -f k8s-deployment-manifests/apache-struts --recursive
 oc delete -f k8s-deployment-manifests/dvwa --recursive
 oc delete -f k8s-deployment-manifests/log4shell --recursive
 oc delete -f skupper-demo/ --recursive
+oc delete securitypolicy alpine-linux-package-manager-execution-patient-portal-enforcement -n stackrox
 ----
 
 image::https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3ODhkZThkZXVxb2twdHloazAzc2VhNWJpeWowenRpeTJoczY3MTAyZyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/RIjVnmAtOD4l4c2Ert/giphy.gif[Fun celebration, link=self, window=blank, width=400]
