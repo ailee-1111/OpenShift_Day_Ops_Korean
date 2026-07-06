@@ -21,6 +21,9 @@ HELM_INSTALL_DIR="${HELM_INSTALL_DIR:-${HOME}/.local/bin}"
 CERT_ISSUER="${VAULT_CERT_ISSUER:-vault-lab-issuer}"
 CERT_ISSUER_KIND="${VAULT_CERT_ISSUER_KIND:-ClusterIssuer}"
 USE_CERT_MANAGER="${VAULT_USE_CERT_MANAGER:-auto}"
+VAULT_DEV_TOKEN="${VAULT_DEV_TOKEN:-root}"
+BASHRC_MARKER_BEGIN="# BEGIN vault-lab (openshift-days-ops-showroom)"
+BASHRC_MARKER_END="# END vault-lab"
 
 log() { echo "[VAULT] $*"; }
 warn() { echo "[VAULT] WARNING: $*" >&2; }
@@ -193,33 +196,45 @@ helm_install_vault() {
   helm "${helm_args[@]}"
 }
 
-print_access_info() {
-  log ""
-  log "========================================================="
-  log "Vault deployment summary"
-  log "========================================================="
-  oc get pods,svc,route -n "${NAMESPACE}" 2>/dev/null || true
-  if should_use_cert_manager; then
-    oc get certificate,clusterissuer "${CERT_ISSUER}" 2>/dev/null || true
+write_bashrc() {
+  local route_host bashrc tmp
+  route_host="$(current_route_host)"
+  [[ -n "${route_host}" ]] || return 0
+
+  bashrc="${HOME}/.bashrc"
+  tmp="$(mktemp)"
+  if [[ -f "${bashrc}" ]]; then
+    awk -v begin="${BASHRC_MARKER_BEGIN}" -v end="${BASHRC_MARKER_END}" '
+      $0 == begin { skip=1; next }
+      $0 == end { skip=0; next }
+      !skip { print }
+    ' "${bashrc}" > "${tmp}"
+  else
+    : > "${tmp}"
   fi
-  log ""
+
+  cat >> "${tmp}" <<EOF
+
+${BASHRC_MARKER_BEGIN}
+export VAULT_ADDR="https://${route_host}"
+export VAULT_TOKEN="${VAULT_DEV_TOKEN}"
+export VAULT_SKIP_VERIFY=true
+${BASHRC_MARKER_END}
+EOF
+  mv "${tmp}" "${bashrc}"
+}
+
+print_access_info() {
   local route_host
   route_host="$(current_route_host)"
+  write_bashrc
   if [[ -n "${route_host}" && "${route_host}" != "chart-example.local" ]]; then
-    log "Vault UI: https://${route_host}/"
-    log "Health: curl -ks \"https://${route_host}/v1/sys/health\" | head -3"
-    if should_use_cert_manager; then
-      log "TLS: cert-manager issuer ${CERT_ISSUER} (self-signed — trust the CA or use browser exception)"
-    else
-      log "TLS: cluster ingress wildcard (*.apps.<cluster-domain>)"
-    fi
+    log "Vault URL: https://${route_host}/"
   else
-    log "Port-forward: oc port-forward svc/${RELEASE} -n ${NAMESPACE} 8200:8200"
-    log "UI: http://127.0.0.1:8200/"
+    log "Vault URL: http://127.0.0.1:8200/ (use: oc port-forward svc/${RELEASE} -n ${NAMESPACE} 8200:8200)"
   fi
-  log ""
-  log "Dev mode token (lab only): root"
-  log "CLI: export VAULT_ADDR=\"https://${route_host}\" VAULT_TOKEN=root"
+  log "Username: Token"
+  log "Password: ${VAULT_DEV_TOKEN}"
 }
 
 main() {
