@@ -3,7 +3,7 @@
 
 == Module Overview
 
-**Duration:** 45 minutes +
+**Duration:** 20 minutes +
 **Format:** Hands-on lab +
 **Audience:** Security Engineers, Platform Engineers, IT Operations
 
@@ -21,7 +21,7 @@ By the end of this lab you will:
 * Inspect certificate properties, identity binding, and automatic certificate rotation
 * Confirm that connections without valid certificates are rejected
 
-Password-based database authentication creates persistent credential theft targets—compromised passwords enable lateral movement, and network segmentation alone cannot stop an authenticated attacker. Zero-trust principles require cryptographic proof of workload identity. SPIFFE (Secure Production Identity Framework for Everyone) is the open standard behind this approach; ZTWIM brings SPIRE—the SPIFFE runtime—to OpenShift so every pod gets a cryptographic identity without you managing a private CA by hand.
+Zero-trust principles require cryptographic proof of workload identity. SPIFFE (Secure Production Identity Framework for Everyone) is the open standard behind this approach; ZTWIM brings SPIRE—the SPIFFE runtime—to OpenShift so every pod gets a cryptographic identity without you managing a private CA by hand.
 
 [cols="1,2,2",options="header"]
 |===
@@ -49,7 +49,7 @@ ZTWIM is already installed on this cluster. You'll register the trust domain and
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
 cd ~/
-git clone https://github.com/mfosterrox/openshift-days-ops-showroom.git
+git clone https://github.com/rhpds/openshift-days-ops-showroom.git
 git pull
 cd ~/openshift-days-ops-showroom/setup-scripts/ztwim-config-scripts
 ./configure-ztwim-lab.sh
@@ -174,7 +174,7 @@ Expected output:
 
 That's the payoff: `current_user` is `postgresql_spiffe` because the certificate CN matched the database role. Key connection parameters: `user` must match the certificate CN; `sslmode=verify-full` is the strictest mode (server verified, hostname matched, client cert required); `sslcert`, `sslkey`, and `sslrootcert` point to the SPIFFE-issued files under `/opt/postgresql-certs/`.
 
-. Gather evidence that TLS is actually in use (safe to paste as one command):
+. Gather evidence that TLS is actually in use:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -247,7 +247,29 @@ oc delete pod unauthorized-client -n postgresql-spiffe-client
 
 Static passwords rot until someone notices. SPIFFE certificates expire on a schedule—and `spiffe-helper` renews them before they do, without restarting your application containers.
 
-. Capture the current certificate serial number:
+.Procedure
+. Start tmux with two panes:
++
+[source,bash,subs="+macros,+attributes",role=execute]
+----
+tmux new-session \; split-window -v \; attach
+----
++
+. In the first pane, follow `spiffe-helper` logs:
++
+[source,bash,subs="+macros,+attributes",role=execute]
+----
+oc logs -n postgresql-spiffe-client -l app=postgresql-spiffe-client -c spiffe-helper --tail=20 -f
+----
++
+. Press *Ctrl+b*, then *o* to switch to the second pane.
++
+[IMPORTANT]
+====
+`Ctrl+b` is the tmux prefix key. `o` switches to the next pane.
+====
++
+. In the second pane, capture the current certificate serial number and expiry:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -255,32 +277,45 @@ oc rsh -n postgresql-spiffe-client -c postgresql-spiffe-client deployment/postgr
   sh -c 'openssl x509 -in /opt/postgresql-certs/svid.pem -noout -serial -enddate'
 ----
 +
-. In a second terminal, monitor `spiffe-helper` logs (press **Ctrl+C** to stop following):
-+
-[source,bash,subs="+macros,+attributes",role=execute]
-----
-oc logs -n postgresql-spiffe-client -l app=postgresql-spiffe-client -c spiffe-helper --tail=20 -f
-----
-+
 [NOTE]
 ====
 Rotation happens on a schedule tied to certificate lifetime (roughly 30 minutes before expiry). In a short lab you may see only the initial `X.509 certificates updated` event—that still confirms the sidecar is watching and writing certs.
 ====
 +
-Log output should include `X.509 certificates updated` with the client's SPIFFE ID.
-+
-. After rotation, verify the serial number changed and connections still work:
+. Re-check the serial number and confirm the database connection still works:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
 oc rsh -n postgresql-spiffe-client -c postgresql-spiffe-client deployment/postgresql-spiffe-client \
+  sh -c 'openssl x509 -in /opt/postgresql-certs/svid.pem -noout -serial -enddate'
+oc rsh -n postgresql-spiffe-client -c postgresql-spiffe-client deployment/postgresql-spiffe-client \
   psql "host=postgresql-spiffe.postgresql-spiffe.svc port=5432 user=postgresql_spiffe dbname=testdb sslmode=verify-full sslcert=/opt/postgresql-certs/svid.pem sslkey=/opt/postgresql-certs/svid.key sslrootcert=/opt/postgresql-certs/svid_bundle.pem" \
   -c "SELECT 'Connection successful after rotation' AS status;"
 ----
++
+. Exit tmux and return to the bastion host terminal:
+.. Type `exit` or press *Ctrl-D* to leave the tmux session.
+.. Press *Ctrl+C* in the first pane if `oc logs` is still running.
+.. type `exit` to leave the tmux session.
++
 
-New serial number, same trust chain, uninterrupted access—that's operational zero trust without a 2 a.m. password rotation runbook.
+Congrats! You've seen new serial number, same trust chain, uninterrupted access—that's operational zero trust without a 2 a.m. password rotation runbook.
+
+== Clean up
+
+.Procedure
+. Run the cleanup script:
+[source,bash,subs="+macros,+attributes",role=execute]
+----
+cd ~/openshift-days-ops-showroom/setup-scripts/ztwim-config-scripts
+./configure-ztwim-postgresql-lab.sh cleanup
+----
 
 == Wrap-up
+
+**Great job!** You secured database access with cryptographic workload identity and mutual TLS. 
+
+To summarize:
 
 * *ZTWIM* on this cluster provides SPIRE server, agents, CSI driver, and OIDC discovery for workload identity.
 * *SPIFFE workload identity* binds X.509 certificates to Kubernetes namespace and service account, replacing static database passwords.
@@ -288,25 +323,6 @@ New serial number, same trust chain, uninterrupted access—that's operational z
 * *Short-lived certificates* (approximately 1 hour) limit exposure windows and rotate automatically via `spiffe-helper` sidecars.
 * *Zero-trust enforcement*: connections without valid SPIFFE certificates are rejected regardless of network access.
 
-[cols="1,2,2,2",options="header"]
-|===
-|Aspect | Password Auth | Certificate Auth (SPIFFE) | Mutual TLS (This Lab)
-|Credential Type | Static password | Client certificate only | Client + server certificates
-|Rotation Burden | Manual | Automatic | Automatic (both sides)
-|Theft Impact | Persistent access | Time-limited exposure | Time-limited + verified server
-|Identity Binding | None (password reuse) | Certificate CN | Certificate CN + SPIFFE ID
-|===
+This is one step in a larger Zero-trust architecture. At Red Hat, we have a framework for building secure clusters called the https://github.com/validatedpatterns/layered-zero-trust[Layered Zero Trust Validated Pattern]. You can learn more about the pattern and how to build your own secure clusters by following the link.
 
-* https://github.com/SeanRickerd/Roadshow-ZTWIM/blob/main/docs/lab-201-01-postgresql-spiffe-mtls.adoc[Roadshow-ZTWIM — PostgreSQL SPIFFE mTLS lab]
-* https://github.com/openshift/zero-trust-workload-identity-manager[Zero Trust Workload Identity Manager on GitHub]
-* https://spiffe.io/[SPIFFE — Secure Production Identity Framework for Everyone]
-
-When you're finished exploring, remove the PostgreSQL lab workloads. ZTWIM platform infrastructure is left in place for other exercises.
-
-[source,bash,subs="+macros,+attributes",role=execute]
-----
-cd ~/openshift-days-ops-showroom/setup-scripts/ztwim-config-scripts
-./configure-ztwim-postgresql-lab.sh cleanup
-----
-
-**Great job!** You secured database access with cryptographic workload identity and mutual TLS instead of static passwords. Continue when you are ready for the next topic in the workshop.
+Continue when you are ready for the next topic in the workshop.
