@@ -6,6 +6,8 @@
 
 include::partial$console-access.adoc[]
 
+image::ops-day-banner.png[OpenShift Ops Day, width=100%]
+
 == Let's Go
 
 You have cluster admin access to a live OpenShift cluster. Let's make sure everything's working - click the commands below:
