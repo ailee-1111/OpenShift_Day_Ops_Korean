@@ -327,7 +327,8 @@ NOTE: Node names and count vary by deployment. Production clusters typically hav
 
 1. Navigate to **Compute → Nodes**
 +
-image::compute-nodes-menu.png[Compute menu showing Nodes option, link=self, window=blank]+
+image::compute-nodes-menu.png[Compute menu showing Nodes option, link=self, window=blank]
++
 2. Click on any node
 3. The **Overview** tab immediately shows you:
    - **Status** - shows whether the node is healthy and flags any issues. On this workshop cluster you'll see overcommit warnings for CPU and memory - this means pod **limits** exceed the node's capacity, but that doesn't mean the node is in trouble. Check the **Utilization** section below to see actual usage vs available capacity. If actual usage is well within capacity, the overcommit is fine. You'll also see firing alerts - on a workshop cluster with many operators installed, this is expected.
@@ -412,7 +413,8 @@ version   4.x       True        False         32m     Cluster version is 4.x
 
 1. Navigate to **Administration → Cluster Settings**
 +
-image::cluster-settings-details.png[Cluster Settings Details Tab, link=self, window=blank]+
+image::cluster-settings-details.png[Cluster Settings Details Tab, link=self, window=blank]
++
 2. Click **Select a version** button (if available)
 3. See available upgrade paths
 
