@@ -1,50 +1,50 @@
-= Zero-Trust Database Access with SPIFFE mTLS
+= SPIFFE mTLS를 사용한 Zero-Trust Database Access
 :page-toclevels: 1
 
-== Module Overview
+== 모듈 개요
 
-**Duration:** 20 minutes +
-**Format:** Hands-on lab +
-**Audience:** Security Engineers, Platform Engineers, IT Operations
+**소요 시간:** 20분 +
+**형식:** 핸즈온 실습 +
+**대상 아우디언스:** Security Engineers, Platform Engineers, IT Operations
 
 include::partial$console-access.adoc[]
 
-Your payment-processing service needs to reach PostgreSQL. The database team refuses to hand out another shared password in a Kubernetes `Secret`—and they're right to push back. Static credentials in Git, images, or long-lived Secrets are exactly what attackers hunt for after a breach.
+여러분의 결제 처리(payment-processing) 서비스가 PostgreSQL에 연결해야 합니다. 데이터베이스 팀은 Kubernetes `Secret`에 또 다른 공유 패스워드를 제공하는 것을 거부하고 있으며, 그들의 그러한 반대는 타당합니다. Git, 이미지 또는 수명이 긴 Secret에 포함된 정적 자격 증명은 보안 침해 발생 후 공격자들이 가장 먼저 찾아 헤매는 대상입니다.
 
-In the previous module you centralized secrets with Vault. Here you go one step further: **no database password at all**. The **Zero Trust Workload Identity Manager (ZTWIM)** issues short-lived X.509 certificates bound to each workload's Kubernetes identity. PostgreSQL trusts those certificates instead of a password vault entry.
+이전 모듈에서는 Vault를 사용하여 secret을 중앙 집중화했습니다. 여기서는 한 단계 더 나아가 **데이터베이스 패스워드를 아예 사용하지 않는 방법**을 적용합니다. **Zero Trust Workload Identity Manager (ZTWIM)**은 각 workload의 Kubernetes identity에 바인딩된 수명이 짧은 X.509 인증서를 발급합니다. PostgreSQL은 패스워드 vault 엔트리 대신 이러한 인증서를 신뢰합니다.
 
-By the end of this lab you will:
+이 실습을 마칠 때쯤 여러분은 다음을 수행할 수 있게 됩니다:
 
-* Configure ZTWIM for the lab using the workshop setup scripts
-* Deploy PostgreSQL with SPIFFE-issued certificates and a separate client workload identity
-* Establish mutual TLS (mTLS) database connections using short-lived SPIFFE certificates instead of passwords
-* Inspect certificate properties, identity binding, and automatic certificate rotation
-* Confirm that connections without valid certificates are rejected
+* 워크숍 설정 스크립트를 사용하여 실습을 위한 ZTWIM을 구성합니다
+* SPIFFE가 발급한 인증서 및 별도의 client workload identity를 가진 PostgreSQL을 배포합니다
+* 패스워드 대신 수명이 짧은 SPIFFE 인증서를 사용하여 상호 TLS(mTLS) 데이터베이스 연결을 설정합니다
+* 인증서 속성, identity 바인딩 및 자동 인증서 갱신(rotation)을 검사합니다
+* 유효한 인증서가 없는 연결은 거부되는지 확인합니다
 
-Zero-trust principles require cryptographic proof of workload identity. SPIFFE (Secure Production Identity Framework for Everyone) is the open standard behind this approach; ZTWIM brings SPIRE—the SPIFFE runtime—to OpenShift so every pod gets a cryptographic identity without you managing a private CA by hand.
+Zero-trust 원칙은 workload identity에 대한 암호화된 증명을 요구합니다. SPIFFE(Secure Production Identity Framework for Everyone)는 이러한 접근 방식의 배경이 되는 오픈 표준입니다. ZTWIM은 SPIFFE 런타임인 SPIRE를 OpenShift에 제공하여, 여러분이 사설 CA를 수동으로 관리하지 않고도 모든 pod가 암호화된 identity를 얻을 수 있도록 합니다.
 
 [cols="1,2,2",options="header"]
 |===
 |Area | Risk If Ignored | Analogy
-|Static Database Passwords | Credential theft enables persistence | Master key copies floating everywhere
-|Password-Based Auth | Brute force / spray attacks | Guessable combination lock
-|Network-Only Security | Lateral movement after breach | Locked front door, open internal doors
-|Manual Cert Rotation | Stale credentials remain valid | Expired building access badges still work
-|No Mutual Authentication | Server cannot verify client | One-way ID check at secure facility
+|정적 데이터베이스 패스워드 | 자격 증명 도난 시 지속적 위협 가능 | 마스터 키 사본이 사방에 유포됨
+|패스워드 기반 인증 | 무차별 대입(Brute force) / 스프레이 공격 | 추측하기 쉬운 다이얼 잠금장치
+|네트워크 전용 보안 | 보안 침해 후 측면 이동(Lateral movement) 발생 | 현관문은 잠겨 있으나 내부 문은 모두 열려 있음
+|수동 인증서 교체 | 오래된 자격 증명이 유효한 상태로 잔존 | 만료된 건물 출입증이 여전히 작동함
+|상호 인증 부재 | 서버가 클라이언트를 검증할 수 없음 | 보안 시설에서 일방적인 ID 확인만 수행함
 |===
 
 [[configure-ztwim-platform]]
 [[deploy-postgresql]]
-== Prepare the platform and deploy PostgreSQL
+== 플랫폼 준비 및 PostgreSQL 배포
 
-ZTWIM is already installed on this cluster. You'll register the trust domain and SPIRE configuration, then deploy PostgreSQL and a client workload—each in its own namespace with its own service account so the database can enforce *who* connects, not just *that* TLS is enabled.
+이 클러스터에는 ZTWIM이 이미 설치되어 있습니다. trust domain과 SPIRE 구성을 등록한 후, 각각 고유한 namespace와 고유한 service account를 가진 PostgreSQL 및 client workload를 배포합니다. 이를 통해 데이터베이스는 단순히 TLS 활성화 여부만 확인하는 것이 아니라 *누가* 연결하는지 적용할 수 있습니다.
 
 [NOTE]
 ====
-**Showroom environments:** The ZTWIM operator is pre-installed. Run the setup script to prepare SPIRE for the PostgreSQL lab.
+**Showroom 환경:** ZTWIM operator가 사전 설치되어 있습니다. 설정 스크립트를 실행하여 PostgreSQL 실습을 위한 SPIRE를 준비하십시오.
 ====
 
-. From the bastion, run the platform setup script:
+. bastion에서 플랫폼 설정 스크립트를 실행합니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -55,11 +55,11 @@ cd ~/openshift-days-ops-showroom/setup-scripts/ztwim-config-scripts
 ./configure-ztwim-lab.sh
 ----
 +
-. Wait until the script reports *ZTWIM platform is ready*.
+. 스크립트가 *ZTWIM platform is ready*를 보고할 때까지 대기합니다.
 +
-TIP: The script configures SPIRE server, agents, the CSI driver, and OIDC discovery endpoints. If it fails, check `oc get pods -n openshift-zero-trust-workload-identity-manager` before re-running.
+TIP: 이 스크립트는 SPIRE server, agent, CSI driver, 그리고 OIDC discovery 엔드포인트를 구성합니다. 실패할 경우 재실행하기 전에 `oc get pods -n openshift-zero-trust-workload-identity-manager` 명령을 확인하십시오.
 +
-. Deploy the PostgreSQL server and client workloads:
+. PostgreSQL 서버 및 client workload를 배포합니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -67,7 +67,7 @@ cd ~/openshift-days-ops-showroom/setup-scripts/ztwim-config-scripts
 ./configure-ztwim-postgresql-lab.sh deploy
 ----
 +
-. Confirm both pods are `2/2 Running`—one application container plus one `spiffe-helper` sidecar that keeps certificates fresh:
+. 두 pod가 모두 `2/2 Running` 상태인지 확인합니다. 이 상태는 하나의 애플리케이션 컨테이너와 인증서를 최신 상태로 유지하는 하나의 `spiffe-helper` 사이드카로 구성됩니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -77,14 +77,14 @@ oc get pods -n postgresql-spiffe-client
 
 [NOTE]
 ====
-The client certificate Common Name (`postgresql_spiffe`) must match the PostgreSQL database user. PostgreSQL maps the CN to the username during certificate authentication.
+클라이언트 인증서의 Common Name (`postgresql_spiffe`)은 PostgreSQL 데이터베이스 사용자 이름과 일치해야 합니다. PostgreSQL은 인증서 인증 과정에서 CN을 사용자 이름으로 매핑합니다.
 ====
 
-== Inspect SPIFFE certificates
+== SPIFFE 인증서 검사
 
-Before connecting, look at what ZTWIM actually issued. Certificates are automatically mounted at `/opt/postgresql-certs/` by the `spiffe-helper` sidecar—you never create or copy PEM files by hand.
+연결하기 전에, ZTWIM이 실제로 발급한 내용을 살펴보겠습니다. 인증서는 `spiffe-helper` 사이드카에 의해 자동으로 `/opt/postgresql-certs/`에 마운트되므로, PEM 파일을 수동으로 생성하거나 복사할 필요가 없습니다.
 
-. On the **server** pod, dump the certificate and focus on three fields—*who* it represents, *how long* it's valid, and the canonical SPIFFE identity URI:
+. **server** pod에서 인증서를 덤프하고 세 가지 필드(*인증 대상*, *유효 기간*, 그리고 정규화된 SPIFFE identity URI)에 중점을 두고 살펴봅니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -92,11 +92,11 @@ oc rsh -n postgresql-spiffe -c postgresql-spiffe deployment/postgresql-spiffe \
   cat /opt/postgresql-certs/svid.pem | openssl x509 -noout -text
 ----
 +
-Look for these in the output:
+출력에서 다음을 찾으십시오:
 
-* *Subject* — server hostname (`CN=postgresql-spiffe.postgresql-spiffe.svc`)
-* *Validity* — short lifespan (default: 1 hour); `Not After` is roughly one hour after `Not Before`
-* *Subject Alternative Name* — DNS name and SPIFFE ID URI:
+* *Subject* — 서버 호스트 이름 (`CN=postgresql-spiffe.postgresql-spiffe.svc`)
+* *Validity* — 짧은 수명 (기본값: 1시간). `Not After`는 `Not Before` 시간보다 약 1시간 뒤로 설정됩니다
+* *Subject Alternative Name* — DNS 이름 및 SPIFFE ID URI:
 +
 [source,text]
 ----
@@ -105,9 +105,9 @@ X509v3 Subject Alternative Name:
     URI:spiffe://<trust-domain>/ns/postgresql-spiffe/sa/postgresql-spiffe
 ----
 
-The SPIFFE ID format is `spiffe://<trust-domain>/ns/<namespace>/sa/<serviceaccount>`. In production, auditors often ask for the SPIFFE ID URI—not just the CN—because it binds identity to Kubernetes namespace and service account.
+SPIFFE ID 형식은 `spiffe://<trust-domain>/ns/<namespace>/sa/<serviceaccount>` 입니다. 프로덕션 환경에서 감사자(auditor)는 흔히 CN뿐만 아니라 SPIFFE ID URI도 요청하는데, 이는 identity를 Kubernetes namespace 및 service account에 바인딩하기 때문입니다.
 
-. List the certificate files on the server. You should see three files owned by `postgres`:
+. 서버에서 인증서 파일을 나열합니다. `postgres` 소유의 세 개의 파일이 표시되어야 합니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -115,11 +115,11 @@ oc rsh -n postgresql-spiffe -c postgresql-spiffe deployment/postgresql-spiffe \
   ls -la /opt/postgresql-certs/
 ----
 +
-* `svid.key` — private key (`600` permissions, readable only by `postgres`)
-* `svid.pem` — workload certificate
-* `svid_bundle.pem` — CA bundle for verification
+* `svid.key` — private key (`600` 권한, `postgres`만 읽을 수 있음)
+* `svid.pem` — workload 인증서
+* `svid_bundle.pem` — 검증용 CA bundle
 +
-. On the **client** pod, run the same inspection and compare identities side by side:
+. **client** pod에서도 동일한 검사를 실행하고 두 identity를 나란히 비교해 봅니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -127,19 +127,19 @@ oc rsh -n postgresql-spiffe-client -c postgresql-spiffe-client deployment/postgr
   cat /opt/postgresql-certs/svid.pem | openssl x509 -noout -text
 ----
 +
-The client CN must match the PostgreSQL database user:
+클라이언트 CN은 PostgreSQL 데이터베이스 사용자와 일치해야 합니다:
 +
 [source,text]
 ----
 Subject: C=US, O=SPIRE, CN=postgresql_spiffe
 ----
 +
-Each workload gets a unique SPIFFE ID:
+각 workload는 고유한 SPIFFE ID를 부여받습니다:
 
 * *Server*: `spiffe://.../ns/postgresql-spiffe/sa/postgresql-spiffe`
 * *Client*: `spiffe://.../ns/postgresql-spiffe-client/sa/postgresql-spiffe-client`
 +
-. Check when the client certificate expires:
+. 클라이언트 인증서 만료 시간을 확인합니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -147,13 +147,13 @@ oc rsh -n postgresql-spiffe-client -c postgresql-spiffe-client deployment/postgr
   sh -c 'echo "Current time: $(date)"; openssl x509 -in /opt/postgresql-certs/svid.pem -noout -dates'
 ----
 
-The `spiffe-helper` sidecar fetches a new certificate approximately 30 minutes before expiration. Short lifetimes are a feature—if an attacker steals a cert, the window of abuse is measured in minutes, not months until someone rotates a password.
+`spiffe-helper` 사이드카는 만료되기 약 30분 전에 새 인증서를 가져옵니다. 수명이 짧다는 것은 공격자가 인증서를 탈취하더라도 악용될 수 있는 기간이 누군가 패스워드를 갱신할 때까지 수개월이 걸리는 대신 몇 분 단위로 단축된다는 보안적 장점이 있습니다.
 
-== Connect and verify mutual TLS
+== 상호 TLS 연결 및 검증
 
-Time to put the certificates to work. You'll connect from the client pod using `psql` with `sslmode=verify-full`: the client proves its identity, PostgreSQL proves *its* identity, and hostname verification must pass. No password prompt—because there is no password.
+이제 인증서를 실무에 사용해 보겠습니다. 클라이언트 pod에서 `sslmode=verify-full`을 설정한 `psql`을 사용하여 연결합니다. 클라이언트가 identity를 증명하고, PostgreSQL도 *자신의* identity를 증명하며, 호스트 이름 검증을 통과해야 합니다. 패스워드가 존재하지 않으므로 패스워드 입력 창도 뜨지 않습니다.
 
-. Run a one-line connection test:
+. 단일 행 연결 테스트를 실행합니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -162,7 +162,7 @@ oc rsh -n postgresql-spiffe-client -c postgresql-spiffe-client deployment/postgr
   -c "SELECT current_user, current_database();"
 ----
 +
-Expected output:
+예상되는 출력:
 +
 [source,text]
 ----
@@ -172,9 +172,9 @@ Expected output:
 (1 row)
 ----
 
-That's the payoff: `current_user` is `postgresql_spiffe` because the certificate CN matched the database role. Key connection parameters: `user` must match the certificate CN; `sslmode=verify-full` is the strictest mode (server verified, hostname matched, client cert required); `sslcert`, `sslkey`, and `sslrootcert` point to the SPIFFE-issued files under `/opt/postgresql-certs/`.
+이것이 핵심 결과입니다. 인증서 CN이 데이터베이스 role과 일치하기 때문에 `current_user`가 `postgresql_spiffe`로 확인됩니다. 주요 연결 매개변수는 다음과 같습니다: `user`는 인증서 CN과 일치해야 하고, `sslmode=verify-full`은 가장 엄격한 모드(서버 검증, 호스트 이름 일치, 클라이언트 인증서 요구)이며, `sslcert`, `sslkey`, `sslrootcert`는 `/opt/postgresql-certs/` 하위의 SPIFFE 발급 파일을 가리킵니다.
 
-. Gather evidence that TLS is actually in use:
+. TLS가 실제로 사용 중인지 증거를 수집합니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -185,9 +185,9 @@ oc rsh -n postgresql-spiffe-client -c postgresql-spiffe-client deployment/postgr
   -c 'SELECT version();'
 ----
 +
-Look for `SSL connection (protocol: TLSv1.3, ...)` in the output and `ssl_is_used` returning `t`. Cluster IP and PostgreSQL build string may differ on your environment.
+출력에서 `SSL connection (protocol: TLSv1.3, ...)`이 포함되어 있는지, 그리고 `ssl_is_used`가 `t`를 반환하는지 확인합니다. 클러스터 IP 및 PostgreSQL 빌드 문자열은 사용자 환경에 따라 다를 수 있습니다.
 +
-. Prove you have a working session—insert a row and read it back:
+. 세션이 작동 중인지 확인하기 위해 행을 하나 삽입하고 다시 읽어옵니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -199,11 +199,11 @@ SELECT * FROM test_table;
 SQL
 ----
 
-== Prove zero-trust enforcement
+== Zero-trust 강제 적용 증명
 
-Zero trust means *verify every connection*, not "trust the internal network." If an attacker can reach port 5432, they should still fail without a valid SPIFFE identity.
+Zero trust는 "내부 네트워크를 신뢰하는 것"이 아니라 *모든 연결을 검증하는 것*을 의미합니다. 공격자가 5432 포트에 도달할 수 있더라도 유효한 SPIFFE identity 없이는 여전히 연결에 실패해야 합니다.
 
-. Deliberately omit the client cert and key from the connection string:
+. 연결 문자열에서 클라이언트 인증서와 키를 의도적으로 제외해 봅니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -212,7 +212,7 @@ oc rsh -n postgresql-spiffe-client -c postgresql-spiffe-client deployment/postgr
   2>&1 | head -5
 ----
 +
-Expected error:
+예상되는 오류:
 +
 [source,text]
 ----
@@ -220,9 +220,9 @@ psql: error: connection to server at "postgresql-spiffe.postgresql-spiffe.svc" f
 FATAL: connection requires a valid client certificate
 ----
 
-Network connectivity alone is insufficient—PostgreSQL `pg_hba.conf` requires SSL *and* valid client certificates (`hostssl ... cert`), and no password bypass exists for the `postgresql_spiffe` user.
+네트워크 연결성만으로는 충분하지 않습니다. PostgreSQL `pg_hba.conf`는 SSL 및 유효한 클라이언트 인증서(`hostssl ... cert`)를 요구하며, `postgresql_spiffe` 사용자에 대해서는 패스워드를 통한 우회 방법이 존재하지 않습니다.
 
-. Launch a random pod in the same namespace—no SPIFFE sidecar, no issued certificate—and try again:
+. 동일한 namespace에 SPIFFE 사이드카나 발급된 인증서가 없는 무작위 pod를 시작하고 다시 시도해 봅니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -234,42 +234,42 @@ oc exec -n postgresql-spiffe-client unauthorized-client -- \
   2>&1 | head -3
 ----
 +
-You should see `connection requires a valid client certificate`. Even pods in the same namespace cannot connect without valid SPIFFE certificates—NetworkPolicy might let them talk; PostgreSQL still says no.
+`connection requires a valid client certificate` 오류가 표시되어야 합니다. 동일한 namespace에 있는 pod라도 유효한 SPIFFE 인증서 없이는 연결할 수 없습니다. NetworkPolicy가 통신을 허용하더라도 PostgreSQL에서 이를 거부합니다.
 +
-. Clean up the test pod:
+. 테스트 pod를 정리합니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
 oc delete pod unauthorized-client -n postgresql-spiffe-client
 ----
 
-== Observe automatic certificate rotation
+== 자동 인증서 교체 확인
 
-Static passwords rot until someone notices. SPIFFE certificates expire on a schedule—and `spiffe-helper` renews them before they do, without restarting your application containers.
+정적 패스워드는 누군가 문제를 제기하기 전까지 방치되는 경우가 많습니다. 반면 SPIFFE 인증서는 정해진 일정에 따라 만료되며, `spiffe-helper`는 애플리케이션 컨테이너를 재시작하지 않고도 만료 전에 인증서를 갱신합니다.
 
-.Procedure
-. Start tmux with two panes:
+.실습 절차
+. 두 개의 분할 화면으로 tmux를 시작합니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
 tmux new-session \; split-window -v \; attach
 ----
 +
-. In the first pane, follow `spiffe-helper` logs:
+. 첫 번째 분할 화면에서 `spiffe-helper` 로그를 실시간으로 확인합니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
 oc logs -n postgresql-spiffe-client -l app=postgresql-spiffe-client -c spiffe-helper --tail=20 -f
 ----
 +
-. Press *Ctrl+b*, then *o* to switch to the second pane.
+. *Ctrl+b*를 누른 다음 *o*를 입력하여 두 번째 화면으로 전환합니다.
 +
 [IMPORTANT]
 ====
-`Ctrl+b` is the tmux prefix key. `o` switches to the next pane.
+`Ctrl+b`는 tmux 프리픽스 키입니다. `o`는 다음 화면으로 전환하는 단축키입니다.
 ====
 +
-. In the second pane, capture the current certificate serial number and expiry:
+. 두 번째 화면에서 현재 인증서 일련번호(serial number)와 만료 날짜를 캡처합니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -279,10 +279,10 @@ oc rsh -n postgresql-spiffe-client -c postgresql-spiffe-client deployment/postgr
 +
 [NOTE]
 ====
-Rotation happens on a schedule tied to certificate lifetime (roughly 30 minutes before expiry). In a short lab you may see only the initial `X.509 certificates updated` event—that still confirms the sidecar is watching and writing certs.
+인증서 교체(rotation)는 인증서 수명에 연결된 일정(만료 약 30분 전)에 따라 일어납니다. 짧은 시간 내에 진행되는 실습에서는 최초의 `X.509 certificates updated` 이벤트만 볼 수도 있으나, 이는 여전히 사이드카가 인증서를 모니터링하고 작성하고 있음을 증명합니다.
 ====
 +
-. Re-check the serial number and confirm the database connection still works:
+. 일련번호를 다시 확인하고 데이터베이스 연결이 여전히 작동하는지 검증합니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -293,18 +293,18 @@ oc rsh -n postgresql-spiffe-client -c postgresql-spiffe-client deployment/postgr
   -c "SELECT 'Connection successful after rotation' AS status;"
 ----
 +
-. Exit tmux and return to the bastion host terminal:
-.. Type `exit` or press *Ctrl-D* to leave the tmux session.
-.. Press *Ctrl+C* in the first pane if `oc logs` is still running.
-.. type `exit` to leave the tmux session.
+. tmux를 종료하고 bastion 호스트 터미널로 돌아갑니다:
+.. `exit`를 입력하거나 *Ctrl-D*를 눌러 tmux 세션에서 나갑니다.
+.. `oc logs`가 여전히 실행 중인 경우 첫 번째 화면에서 *Ctrl+C*를 누릅니다.
+.. `exit`를 입력하여 tmux 세션을 완전히 종료합니다.
 +
 
-Congrats! You've seen new serial number, same trust chain, uninterrupted access—that's operational zero trust without a 2 a.m. password rotation runbook.
+축하합니다! 새로운 일련번호, 동일한 신뢰 체인(trust chain), 중단 없는 연결을 확인하셨습니다. 이것이 바로 새벽 2시에 패스워드를 교체해야 하는 운영 가이드 없이도 실현 가능한 진정한 zero trust 운영 방식입니다.
 
-== Clean up
+== 정리
 
-.Procedure
-. Run the cleanup script:
+.실습 절차
+. 정리 스크립트를 실행합니다:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -312,18 +312,18 @@ cd ~/openshift-days-ops-showroom/setup-scripts/ztwim-config-scripts
 ./configure-ztwim-postgresql-lab.sh cleanup
 ----
 
-== Wrap-up
+== 마무리
 
-**Great job!** You secured database access with cryptographic workload identity and mutual TLS. 
+**수고하셨습니다!** 암호화된 workload identity와 상호 TLS를 통해 데이터베이스 액세스를 안전하게 보호하셨습니다. 
 
-To summarize:
+요약하자면 다음과 같습니다:
 
-* *ZTWIM* on this cluster provides SPIRE server, agents, CSI driver, and OIDC discovery for workload identity.
-* *SPIFFE workload identity* binds X.509 certificates to Kubernetes namespace and service account, replacing static database passwords.
-* *Mutual TLS* enforces bidirectional certificate verification—both client and server prove cryptographic identity.
-* *Short-lived certificates* (approximately 1 hour) limit exposure windows and rotate automatically via `spiffe-helper` sidecars.
-* *Zero-trust enforcement*: connections without valid SPIFFE certificates are rejected regardless of network access.
+* 이 클러스터의 *ZTWIM*은 workload identity를 위해 SPIRE server, agent, CSI driver, 그리고 OIDC discovery를 제공합니다.
+* *SPIFFE workload identity*는 X.509 인증서를 Kubernetes namespace 및 service account에 바인딩하여 정적 데이터베이스 패스워드를 대체합니다.
+* *Mutual TLS*는 양방향 인증서 검증을 적용하여 클라이언트와 서버가 모두 암호화된 identity를 스스로 증명합니다.
+* *수명이 짧은 인증서* (약 1시간)는 위협 노출 기간을 줄이고, `spiffe-helper` 사이드카를 통해 자동으로 교체됩니다.
+* *Zero-trust 강제 적용*: 네트워크 접근 허용 여부와 무관하게 유효한 SPIFFE 인증서가 없는 연결은 모두 거부됩니다.
 
-This is one step in a larger Zero-trust architecture. At Red Hat, we have a framework for building secure clusters called the https://github.com/validatedpatterns/layered-zero-trust[Layered Zero Trust Validated Pattern]. You can learn more about the pattern and how to build your own secure clusters by following the link.
+이는 광범위한 Zero-trust 아키텍처 구축을 위한 하나의 단계입니다. Red Hat에는 안전한 클러스터를 설계하기 위해 https://github.com/validatedpatterns/layered-zero-trust[Layered Zero Trust Validated Pattern]이라고 불리는 검증된 패턴 프레임워크가 있습니다. 해당 링크를 통해 패턴과 안전한 클러스터를 설계하는 방법에 대해 자세히 알아볼 수 있습니다.
 
-Continue when you are ready for the next topic in the workshop.
+워크숍의 다음 주제를 진행할 준비가 되시면 계속 진행하십시오.
