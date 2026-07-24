@@ -1,10 +1,10 @@
-= Thank You for Completing the Workshop
+= 워크숍을 완료해 주셔서 감사합니다
 
-**Thank you for attending the OpenShift Ops Day Roadshow.**
+**OpenShift Ops Day Roadshow에 참석해 주셔서 감사합니다.**
 
-We hope you found the hands-on exercises valuable. If you have any further questions, please ask your instructor.
+진행된 핸즈온 실습이 여러분께 가치 있는 시간이 되었기를 바랍니다. 추가적인 질문이 있으신 경우 강사에게 문의해 주십시오.
 
-== Additional Resources
+== 추가 리소스
 
 * link:https://docs.redhat.com/en/documentation/openshift_container_platform/4.20[OpenShift Documentation, window=blank]
 * link:https://developers.redhat.com/learn/openshift[OpenShift Learning, window=blank]
