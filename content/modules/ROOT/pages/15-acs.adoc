@@ -1,43 +1,43 @@
 = Red Hat Advanced Cluster Security (RHACS)
 
-== Module Overview
+== Module Overview (모듈 개요)
 
-**Duration:** 15-20 minutes +
-**Format:** Hands-on lab +
-**Audience:** Security Engineers, Platform Engineers, IT Operations
+**소요 시간:** 15-20분 +
+**형식:** Hands-on 실습 +
+**대상:** Security Engineers, Platform Engineers, IT Operations
 
 include::partial$console-access.adoc[]
 
-NOTE: The same admin credentials are used for the RHACS console.
+NOTE: RHACS console에도 동일한 admin credential이 사용됩니다.
 
-== Learning Objectives
+== Learning Objectives (학습 목표)
 
-By the end of this module, you will:
+이 모듈을 마칠 때쯤 다음 작업을 수행할 수 있게 됩니다:
 
-* Deploy a bunch of insecure applications
-* Setup compliance reporting and compliance checks
-* Scan workloads with Red Hat Advanced Cluster Security (RHACS)
+* 취약하고 비보안적인 다수의 애플리케이션 배포
+* compliance 리포팅 및 compliance 체크 설정
+* Red Hat Advanced Cluster Security (RHACS)를 통한 workload 스캔
 
-== Ensure access to the ACS console
+== ACS Console 접속 확인
 
-The RHACS Web Console provides a unified securityview of your clusters. We recommend that you use the embedded browser tab for this workshop.
+RHACS Web Console은 cluster들에 대한 통합된 보안 뷰를 제공합니다. 본 워크숍에서는 임베디드 브라우저 탭을 사용할 것을 권장합니다.
 
-TIP: If you see an authentication error, click **Try Again** or reload the tab at the top and try again.
+TIP: 인증 오류가 발생하는 경우, **Try Again**을 클릭하거나 상단의 탭을 새로고침한 후 다시 시도하십시오.
 
-RHACS administrator login credentials:
+RHACS administrator 로그인 credential 정보:
 
 [cols="1,1"]
 |===
-| *Username:* | {openshift_cluster_admin_username}
-| *Password:* | {openshift_cluster_admin_password}
+| *Username (사용자 이름):* | {openshift_cluster_admin_username}
+| *Password (비밀번호):* | {openshift_cluster_admin_password}
 |===
 
-== Deploy a bunch of insecure applications
+== 비보안 애플리케이션 배포
 
-Let's deploy a bunch of insecure applications to the cluster. This will help us demonstrate the capabilities of RHACS.
+cluster에 취약한 보안 설정을 가진 다수의 애플리케이션을 배포해 보겠습니다. 이를 통해 RHACS의 다양한 보안 기능을 효과적으로 시연할 수 있습니다.
 
-.Procedure
-. Run the following command in your terminal to deploy the insecure applications:
+.실습 절차
+. 터미널에서 다음 명령을 실행하여 비보안 애플리케이션들을 배포하십시오:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -51,7 +51,7 @@ oc apply -f k8s-deployment-manifests/log4shell --recursive
 oc apply -f skupper-demo/ --recursive
 ----
 +
-You'll see applications being deployed (output truncated):
+애플리케이션들이 배포되는 과정을 확인할 수 있습니다 (출력 생략):
 +
 ----
 namespace/emojivoto created
@@ -63,34 +63,34 @@ namespace/log4shell created
 namespace/nodejs-goof-vuln-main created
 ----
 
-== Security and Environment Insights
+== 보안 및 환경 통찰
 
-**Let's review the basics of RHACS.**
+**RHACS의 기본 개념을 먼저 살펴보겠습니다.**
 
-=== *RHACS Basics*
-RHACS provides essential tools for security workflows in Kubernetes, including:
+=== *RHACS의 기본 기능*
+RHACS는 Kubernetes 환경의 필수적인 보안 워크플로우를 위해 다음과 같은 도구를 제공합니다:
 
-- Vulnerability management (Platform, workloads, Nodes, and Virtual Machines)
-- Policy lifecycle management (Policy-as-Code)
-- Compliance auditing
-- Risk profiling
-- Threat detection and response
+- 취약점 관리 (Platform, workloads, Nodes 및 Virtual Machines)
+- Policy 수명 주기 관리 (Policy-as-Code)
+- Compliance 감사(Compliance auditing)
+- 위험 프로파일링(Risk profiling)
+- 위협 감지 및 대응(Threat detection and response)
 
-With RHACS, you can ensure your Kubernetes clusters remain secure and compliant across CNCF supported Kubernetes environment.
+RHACS를 활용하면, CNCF가 지원하는 Kubernetes 환경 전반에서 Kubernetes cluster들을 안전하고 컴플라이언스 규격에 부합하도록 유지할 수 있습니다.
 
 [[rhacs-compliance-operator-installation-and-compliance-checks]]
 == Compliance Checks with RHACS and the Compliance Operator
 
-Production clusters and applications should meet your security standards and internal policies consistently. RHACS, together with the OpenShift compliance operator, helps you measure that posture, spot compliance gaps, and remediate them before they reach production or drifts out of compliance (over time).
+프로덕션 cluster와 애플리케이션은 보안 표준 및 내부 policy 규격을 상시 준수해야 합니다. RHACS는 OpenShift compliance operator와 협력하여 보안 상태를 실시간 측정하고, compliance 격차(gap)를 감지하며, 서비스가 프로덕션에 배포되거나 시간이 지남에 따라 compliance에서 이탈(drift)하기 전에 미리 조치할 수 있도록 돕습니다.
 
-First, let's add a configuration to the local cluster so you can see the difference between compliance check results.
+먼저, compliance 체크 결과의 차이를 체감할 수 있도록 local cluster에 간단한 configuration을 수정해 보겠습니다.
 
-=== Make a Simple Cluster Change to Pass the Compliance Check
+=== Compliance 체크 패스를 위한 간단한 Cluster 수정
 
-Let's focus on the *ocp4-e8* compliance standard and see how we can pass the `ocp4-e8-ocp-allowed-registries` control. Follow the steps below to pass the check for the production cluster.
+*ocp4-e8* compliance 표준에 집중하여, `ocp4-e8-ocp-allowed-registries` 통제 항목을 어떻게 패스할 수 있는지 알아보겠습니다. 다음 절차를 실행하여 프로덕션 cluster에 대한 체크를 패스하도록 설정하십시오.
 
-.Procedure
-. Click the command below to execute it.
+.실습 절차
+. 실행하기 위해 아래 명령을 클릭하십시오.
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -112,14 +112,14 @@ spec:
 EOF
 ----
 +
-. Check that your changes have been accepted:
+. 변경 사양이 정상 반영되었는지 확인하십시오:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
 oc get image.config.openshift.io/cluster -o yaml | grep allowedRegistries -A 10
 ----
 +
-**Output**
+**출력 결과**
 [source,bash,subs="+macros,+attributes"]
 ----
     allowedRegistries:
@@ -133,41 +133,41 @@ status:
   internalRegistryHostname: image-registry.openshift-image-registry.svc:5000
 ----
 
-Great! Now let's set up compliance checks for your local cluster.
+좋습니다! 이제 local cluster에 대한 compliance 체크 스캔을 구성해 보겠습니다.
 
-=== Set up a Compliance Scan
+=== Compliance 스캔 설정
 
-Follow the steps below to set up the compliance scan.
+compliance 스캔을 설정하기 위해 다음 절차를 수행하십시오.
 
-.Procedure
-. Head to the *RHACS* tab in the workshop panel and click on the *Compliance* → *OpenShift Schedules* tab.
+.실습 절차
+. 워크숍 패널에서 *RHACS* 탭으로 이동하고, *Compliance (컴플라이언스)* → *OpenShift Schedules (오픈시프트 스케줄)* 탭을 클릭하십시오.
 +
 image::acs-security-01.png[RHACS Compliance OpenShift Schedules tab, link=self, window=blank, width=100%]
 
-. Next, click on the *Create scan schedule*.
+. 다음으로, *Create scan schedule* 버튼을 클릭하십시오.
 +
 image::acs-security-02.png[Create scan schedule dialog, link=self, window=blank, width=100%]
 
-. Next, fill in the form with the following information:
-* *Name*:
+. 다음 정보를 폼 필드에 입력하십시오:
+* *Name (이름)*:
 +
 [source,sh,subs="attributes",role="copypaste"]
 ----
 acs-catch-all
 ----
-* *Description*:
+* *Description (설명)*:
 +
 [source,sh,subs="attributes",role="copypaste"]
 ----
 Daily compliance scan for all profiles covering CIS, E8, Moderate, NERC-CIP, PCI-DSS, and STIG standards.
 ----
-* *Frequency*: `Daily`
-* *Time*: 00:00 UTC
+* *Frequency (빈도)*: `Daily`
+* *Time (시간)*: 00:00 UTC
 
-. Click *Next*
-. Select the clusters: *production*
-. Click *Next*
-. Add the following profiles:
+. *Next*를 클릭하십시오.
+. 대상을 지정할 cluster로 *production*을 선택하십시오.
+. *Next*를 클릭하십시오.
+. 다음 프로필들을 추가하십시오:
 * `ocp4-cis` 
 * `ocp4-e8` 
 * `ocp4-nerc-cip`
@@ -176,54 +176,54 @@ Daily compliance scan for all profiles covering CIS, E8, Moderate, NERC-CIP, PCI
 
 [NOTE]
 ====
- There are many profiles to select but here we are selecting the most common profiles that are used in most organizations. If you want to only add the ones necessary for the lab. Select `ocp4-cis` & `ocp4-e8` only.
+선택할 수 있는 프로필은 다양하게 제공되지만, 여기서는 대부분의 보안 조직에서 가장 흔히 활용되는 기본 프로필들을 선택해 보았습니다. 이번 실습에 필요한 핵심 프로필만 최소한으로 지정하고 싶다면, `ocp4-cis` 및 `ocp4-e8` 프로필만 골라 추가하셔도 무방합니다.
 ====
 
 [start=8]
-. Click *Next*
+. *Next*를 클릭하십시오.
 +
 [NOTE]
 ====
-You can send notifications via email, get details via API or download reports via the console. However, we will not add a delivery destination so we will skip this step.
+이메일 알림 전송, API를 통한 결과값 확보, 또는 console을 통한 리포트 다운로드가 가능합니다. 다만, 이번 실습에서는 따로 전송 대상(delivery destination)을 지정하지 않을 예정이므로 이 단계는 건너뛰도록 하겠습니다.
 ====
 +
-. Click *Next*
-. Review your masterpiece and click *Save*
-. The scan should start automatically. If not, you can always use the menu (three dots) linked to the schedule and select *Run scan* to trigger a manual scan.
+. *Next*를 클릭하십시오.
+. 구성 정보를 최종 검토한 후 *Save*를 클릭하십시오.
+. 스캔은 자동으로 즉시 개시됩니다. 만약 시작되지 않는다면 스케줄 항목의 메뉴(점 세 개 기호)를 클릭하여 *Run scan*을 선택해 수동으로 강제 구동할 수 있습니다.
 +
 image::acs-security-03.png[Scan schedule menu with Run scan option, link=self, window=blank, width=100%]
 +
 image::acs-security-04.png[Compliance scan running, link=self, window=blank, width=100%]
 +
-NOTE: The scan may take a few minutes to complete. If the scan status doesn't update, click on another section in the RHACS console and come back to refresh the view.
+NOTE: 스캔이 완료되는 데 수 분 정도 걸릴 수 있습니다. 진행 상태가 제때 업데이트되지 않는 것처럼 보인다면 RHACS console 내의 다른 섹션을 클릭했다가 다시 복귀하여 화면을 갱신해 보십시오.
 +
-. Head over to the OpenShift coverage section where you can view all of the details from the scan. Click on the *Compliance* → *OpenShift Coverage* → *E8* tab to view the results.
+. OpenShift 커버리지 섹션으로 이동하여 스캔의 상세 결과를 점검하십시오. *Compliance (컴플라이언스)* → *OpenShift Coverage (오픈시프트 커버리지)* → *E8* 탭을 클릭하여 결과를 확인하십시오.
 +
 image::acs-security-05.png[E8 compliance standard overview, link=self, window=blank, width=100%]
 +
 [NOTE]
 ====
-Remember that we passed the check for the production cluster by adding the allowed registries to the cluster configuration.
+앞서 cluster configuration에 허용된 registry들을 추가해 둠으로써 production cluster가 해당 점검 항목을 이미 정상 통과했음을 기억하십시오.
 ====
-. Let's take a look at the details of the check by scrolling down and clicking on the passing standard `ocp4-e8-ocp-allowed-registries`.
+. 아래로 스크롤한 뒤, 성공(passing) 판정을 받은 기준 항목인 `ocp4-e8-ocp-allowed-registries`를 클릭하여 세부 검토 사항을 확인해 보겠습니다.
 +
 image::acs-security-06.png[Allowed registries compliance clusters, link=self, window=blank, width=100%]
 +
 [NOTE]
 ====
-This view shows you all of the clusters and their status for the check. As you can see, the production cluster is passing.
+이 화면은 전체 cluster들과 이들의 개별 점검 상태를 표출합니다. 보시다시피 production cluster가 정상 통과(passing) 상태로 표시되어 있습니다.
 ====
 +
-. Click on the *Details* tab to view the description, rationale, and remediation for the compliance check.
+. *Details* 탭을 선택하여 해당 compliance 점검 사양에 대한 상세 설명(description), 논리적 근거(rationale), 조치 가이드(remediation) 정보를 확인하십시오.
 +
 image::acs-security-07.png[Allowed registries compliance check details, link=self, window=blank, width=100%]
 +
 [NOTE]
 ====
-This view shows you the details of the check for the production cluster. As you can see, the production cluster is passing.
+이 뷰는 production cluster를 대상으로 점검한 결과의 세부 내용을 제공합니다. 여기서도 production cluster가 통과 상태임을 볼 수 있습니다.
 ====
 +
-. And you can run the verification step to ensure the check is passing.
+. 그리고 다음 명령을 실행하여 해당 점검이 최종 패스되었는지 직접 검증 단계를 수행할 수 있습니다.
 
 +
 [source,sh,subs="attributes",role=execute]
@@ -233,24 +233,24 @@ oc get image.config.openshift.io cluster -o jsonpath='{.spec.registrySources.all
 
 image::https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcHI1ZGQwYWNnd3doY2s4MDNpenZ1MWlzeDlqNWhyNzF5c2JveWNybSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/xTQXENNW77nUsNVmV4/giphy.gif[Fun celebration, link=self, window=blank, width=400]
 
-**Great job!** Compliance reporting can be a pain. RHACS and OpenShift want to make it easy for your teams to pass audits and compliance checks across regional barriers.
+**훌륭합니다!** Compliance 리포트 작성은 까다로운 업무가 될 수 있습니다. RHACS와 OpenShift는 여러분의 조직들이 리전의 장벽을 뛰어넘어 각종 감사 및 compliance 체크를 손쉽게 통과할 수 있도록 고안되었습니다.
 
-== Runtime Security and Immutable Workloads
+== Runtime 보안 및 Immutable Workloads
 
-In production Kubernetes environments, strict control over what runs inside your cluster is essential for security. Monitoring for file integrity and anomalous behavior helps you detect drift from approved images and configurations.
+프로덕션 Kubernetes 환경에서는 cluster 내부에서 실시간 실행되는 대상을 철저히 제어하는 것이 보안상 대단히 중요합니다. 파일 무결성 및 이상 징후 행동을 모니터링하면, 승인된 원래의 이미지나 configuration 규격으로부터 이탈하는 드리프트(drift) 현상을 신속히 감지하는 데 도움이 됩니다.
 
-RHACS includes built-in policies that detect and block risky behaviors such as unauthorized access attempts, persistent threats, lateral movement, and file integrity violations. These policies help you enforce the immutable container principle -- containers should only run exactly what you approved, with no unexpected changes.
+RHACS는 인가되지 않은 액세스 시도, 지능형 위협(persistent threats), 횡적 이동(lateral movement), 파일 무결성 훼손 등 위험성 높은 비정상 행동을 스스로 감지하고 차단하는 보안 policy들을 내장하고 있습니다. 이 policy들은 컨테이너의 불변성 원칙(immutable container principle), 즉 컨테이너가 뜻하지 않은 불필요한 변경 사항 없이 검증되고 허가된 이미지만 정확하게 실행해야 한다는 규칙을 정밀하게 보장해 줍니다.
 
-== Use Policy-as-Code to Block Anomalous Behavior at Runtime
+== Policy-as-Code를 통한 Runtime 비정상 행동 제어
 
-Package managers such as apt, apk, yum, and dnf are useful on virtual machines, but they have no place in production containers. Allowing them enables uncontrolled software installation, increases the attack surface in your cluster, and breaks auditability and immutability -- core expectations for production workloads.
+apt, apk, yum, dnf 등의 패키지 관리자(package manager)는 일반 virtual machine 환경에서는 매우 유용하지만, 프로덕션 컨테이너 내부에서 실행되어서는 안 됩니다. 이를 활성화해 두면 임의의 무분별한 소프트웨어 설치를 허용하는 꼴이 되며, cluster 내부의 공격 노출면(attack surface)을 확장하고 프로덕션 workload의 대전제인 감사 가능성(auditability) 및 불변성(immutability)을 정면으로 위배하게 됩니다.
 
-*Policy-as-Code is an effective way to scale this protection across your clusters.*
+*Policy-as-Code는 다중 cluster 전체에 걸쳐 이러한 보안 보호망을 광범위하게 배포하고 일관되게 규격화하는 매우 탁월한 방법입니다.*
 
-Let's look at an example of how we can use Policy-as-Code to block anomalous behavior at runtime.
+Policy-as-Code 방식을 응용하여 실행(runtime) 중에 감지되는 이상 동작을 실시간 차단하는 보안 구성을 확인해 보겠습니다.
 
-.Procedure
-. *Apply the following policy configuration into the terminal*. It will create a security policy to enforce runtime protection against package manager execution. 
+.실습 절차
+. *아래의 policy configuration 명령을 터미널에서 실행하십시오*. 이 명령은 컨테이너 구동 중 패키지 관리자의 임의 구동을 탐지 및 차단하는 runtime 보호용 보안 policy를 생성합니다.
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -304,31 +304,31 @@ EOF
 ----
 +
 ====
-Next, you will use `tmux` to watch OpenShift events while running the test so you can see how RHACS enforces the policy at runtime.
+다음 단계에서는 테스트 명령을 구동하는 동시에, OpenShift 이벤트를 관찰하기 위해 `tmux`를 사용할 것입니다. 이를 통해 실시간으로 RHACS가 어떻게 보안 policy를 강제 강행(enforcement)하는지 목격할 수 있습니다.
 ====
 +
-. From the terminal, start tmux with two panes:
+. 터미널에서 두 개의 창(pane)으로 나뉜 tmux 세션을 개시하십시오:
 +
 [source,sh,role=execute]
 ----
 tmux new-session \; split-window -v \; attach
 ----
 +
-. Next, run a watch on OpenShift events in the first shell pane:
+. 먼저, 첫 번째 shell 창에서 OpenShift 이벤트 스트림을 관찰하는 모니터링 명령을 실행하십시오:
 +
 [source,sh,role=execute]
 ----
 oc get events -n patient-portal -w
 ----
 +
-. Press *Ctrl+b, o* to switch to the next pane. (Ctrl+b THEN o)
+. *Ctrl+b, o*를 눌러 인접 창으로 제어 포커스를 이동시키십시오 (먼저 Ctrl+b를 누른 후 잇따라 o를 타이핑합니다).
 +
 [IMPORTANT]
 ====
-`Ctrl+b` is the prefix key for tmux. `o` is the command to switch to the next pane.
+`Ctrl+b`는 tmux 세션을 위한 접두사 단축키(prefix key)입니다. `o`는 인접한 다음 pane으로 화면을 제어 전환하는 작동키입니다.
 ====
 +
-. Exec into our *patient-frontend* application by getting the pod details and adding them to the following command.
+. 아래 명령을 활용하여 *patient-frontend* 애플리케이션 pod를 구한 뒤 해당 컨테이너의 내부 shell로 침투(exec)해 보겠습니다.
 +
 [source,sh,role=execute]
 ----
@@ -336,7 +336,7 @@ POD=$(oc get pod -n patient-portal -l app=frontend -o jsonpath="{.items[0].metad
 oc exec -n patient-portal $POD -i --tty -- /bin/sh
 ----
 +
-.Sample output
+.출력 예시
 [source,bash]
 ----
 [demo-user@bastion ~]$ POD=$(oc get pod -n patient-portal -l app=frontend -o jsonpath="{.items[0].metadata.name}")
@@ -344,14 +344,14 @@ oc exec -n patient-portal $POD -i --tty -- /bin/sh
 /home/fritz $
 ----
 +
-. Run the alpine package manager in this shell:
+. 컨테이너 내부 shell 환경에서 아래와 같이 alpine 패키지 관리자 명령을 인위적으로 구동시켜 보십시오:
 +
 [source,sh,role=execute]
 ----
 apk update
 ----
 +
-. Examine the output and expect to see that the package manager attempts to perform an update operation:
+. 다음과 같이 패키지 관리자가 기동하려고 시도하는 시점에서 아래와 유사한 출력 결과가 생성되는지 관찰하십시오:
 +
 [source,texinfo,subs="attributes"]
 ----
@@ -362,9 +362,9 @@ ERROR: Failed to open apk database: Permission denied
 [demo-user@bastion ~]$
 ----
 +
-NOTE: It's normal to see *Unable to lock database: Permission denied*. This is because OpenShift is blocking the sudo behavior of the pod thanks to pod security policies.
+NOTE: *Unable to lock database: Permission denied* 메시지가 나타나는 것은 매우 정상입니다. OpenShift가 pod 보안 규정 덕분에 pod의 root(sudo) 권한 획득 행위를 원천적으로 통제하고 있기 때문입니다.
 +
-. Examine the oc get events tmux pane (The pane on the bottom), and note that it shows that RHACS detected the package manager invocation and deleted the pod:
+. 아래 하단에 나열되는 oc get events의 tmux 화면을 살pi십시오. RHACS가 패키지 관리자의 구동 시도를 즉각 발견하고 해당 pod를 강제로 소멸(delete)시켜 폐기 조치했음을 보여 줍니다:
 +
 [source,texinfo,subs="attributes"]
 ----
@@ -380,46 +380,46 @@ LAST SEEN   TYPE      REASON                 OBJECT                           ME
 +
 [NOTE]
 ====
-After a few seconds, you can see the pod is deleted and recreated. In your tmux shell pane, note that your shell session has terminated and that you are returned to the Bastion VM command line.
+수 초 정도 경과하면 해당 위반 pod가 제거되고 새롭게 재생성되는 것을 볼 수 있습니다. 현재 작업 중이던 tmux shell 세션이 강제 종료 처리되면서, 원래 머물던 Bastion VM 커맨드 라인 화면으로 튕겨 돌아오게 됨을 확인할 수 있습니다.
 ====
 +
-. Exit the tmux session and return to the bastion host terminal:
-.. If you are still inside the container shell, type `exit` to exit the container.
-.. Press `Ctrl+C` to stop the `watch` command running in the tmux pane.
-.. Type `exit` or `Ctrl-D` to exit the tmux session and return to the bastion host terminal.
+. tmux 세션을 종료하고 원래의 bastion 호스트 터미널로 완전히 귀환하십시오:
+.. 만약 여전히 컨테이너 내부 shell 프롬프트 상에 있다면 `exit`를 입력하여 먼저 빠져나오십시오.
+.. tmux 화면에서 실행 중인 `watch` 명령을 중지하기 위해 `Ctrl+C`를 입력하십시오.
+.. `exit`를 치거나 `Ctrl-D`를 눌러 tmux 화면 세션을 모두 닫고 bastion 호스트 터미널 화면으로 돌아오십시오.
 +
 [NOTE]
 ====
-You can see that the behavior is blocked by the policy, however, the security team still needs to be aware of this behavior and investigate why it is happening.
+비정상 행동이 사전에 정의한 policy에 의해 실시간 차단 제어되는 것을 확인했습니다. 하지만 이와 같은 시도가 일어났다는 실질적인 위협 정보는 인프라 보안 팀에 신속히 공유되어, 왜 이러한 침투 동작이 유발되었는지 후속 조사(investigate)를 수반해야 합니다.
 ====
 
-You have successfully stopped yourself from running a (Potentially breaking) update! However, the security investigative process continues, as you have now raised an alert that must be triaged! 
+시스템을 파괴할 우려가 있는 자의적인 업데이트 설치 시도를 정상적으로 모니터링하고 성공적으로 차단했습니다! 다만 이제 보안 위협 분석 절차를 위해 반드시 사후 분류 및 심사(triage)가 수반되어야 하는 경고(alert) 로그가 시스템 상에 정식 기록되었습니다.
 
 [[violations-reporting-audit-compliance]]
-== Violations and Reporting for Audit and Compliance
+== 감사 및 컴플라이언스를 위한 Violations 분석 및 보고
 
-Event audits support security best practices and give your team a clear record of what happened when a policy fired. RHACS captures forensic detail for each violation so you can investigate, report, and tune policies with confidence.
+발생한 이벤트의 감사는 보안 모범 사례를 보장하고, 특정 policy가 트리거되었을 때 있었던 모든 물리적인 기록을 명확히 보존해 줍니다. RHACS는 발생한 위반(violation) 건마다 정교한 포렌식 데이터(forensic detail)를 자동으로 확보하므로, 이를 기반으로 원인을 심도 있게 규명하고 보고서를 생성하며 policy 수준을 더욱 예리하게 가다듬을 수 있습니다.
 
-*Procedure*
+*실습 절차*
 
-. Switch back to the RHACS console in your browser and navigate to the *Violations* page.
-. Filter by the policy violation *Policy*, *Name*, `r/alpine` OR by the most recent policy violations (sort by time). You will see a policy violation that has been enforced.
+. 웹 브라우저 화면의 RHACS console로 복귀하여, *Violations* 페이지로 이동하십시오.
+. policy 위반 항목을 *Policy*, *Name*, `r/alpine` 혹은 가장 최근의 위반 내역으로 정렬 필터링하십시오. policy 통제가 강제 적용(enforced)된 최신 내역을 확인할 수 있습니다.
 +
 image::acs-security-08.png[RHACS Violations list filtered by policy, link=self, window=blank, width=100%]
 +
-. Click on your *Alpine Linux Package Manager Execution - Patient-Portal Enforcement* to view the details.
+. 세부 조사 내역을 열어 보기 위해 방금 감지된 *Alpine Linux Package Manager Execution - Patient-Portal Enforcement* 항목을 클릭하십시오.
 +
 image::acs-security-09.png[RHACS violation detail for package manager policy, link=self, window=blank, width=100%]
 +
 [IMPORTANT]
 ====
-If configured properly, each violation record should be pushed to a Security Information and Event Management (SIEM) application and is available to be retrieved via the API. The forensic data shown in the UI is recorded, including the timestamp, process user IDs, process arguments, process ancestors, and enforcement action.
+적절히 구성된 연계 환경 하에서 감지된 개별 violation 로그 내역들은 Security Information and Event Management (SIEM) 솔루션으로 실시간 자동 포워딩되거나 API 조회를 통해 추출할 수 있습니다. UI에 상세히 나열되는 타임스탬프, 구동한 프로세스 유저 ID, 실행 시 입력 인자(arguments), 상위 프로세스 경로(ancestors), 통제 제어 행동(enforcement action) 등의 귀중한 포렌식 자료가 완벽히 보존됩니다.
 ====
 
-=== Clean up
+=== 환경 정리
 
-.Procedure
-. Run the following commands in your terminal to clean up the demo applications and ACS changes from this module:
+.실습 절차
+. 이번 모듈 실습의 뒷정리를 위해 터미널 창에 다음 명령을 수행하여 데모 애플리케이션 및 ACS 설정 변경 내역들을 일괄 정리하십시오:
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
@@ -435,4 +435,4 @@ oc delete securitypolicy --all -n stackrox --ignore-not-found
 
 image::https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3ODhkZThkZXVxb2twdHloazAzc2VhNWJpeWowenRpeTJoczY3MTAyZyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/RIjVnmAtOD4l4c2Ert/giphy.gif[Fun celebration, link=self, window=blank, width=400]
 
-**Great job!** Thanks for playing along and checking out the RHACS basics. You're ready to move on to the next module in the left navigation when you are ready.
+**수고하셨습니다!** 본 실습에 흥미롭게 참여해 주시고 RHACS의 기본 핵심 기능을 확인해 주셔서 감사합니다. 이제 좌측 사이드 메뉴에서 준비가 되었을 때 다음 모듈을 골라 계속 진행해 보시기 바랍니다.
