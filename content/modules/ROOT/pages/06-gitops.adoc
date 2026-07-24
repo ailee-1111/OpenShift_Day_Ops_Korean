@@ -1,9 +1,9 @@
 = GitOps - Declarative Cluster Management
 :page-toclevels: 1
 
-== Getting Started
+== 시작하기
 
-=== Module Overview
+=== 모듈 개요
 
 **소요 시간:** 10-15분 +
 **진행 방식:** 실습 +
@@ -17,7 +17,7 @@ GitOps는 클러스터 구성을 Git repository 내의 코드로 취급함으로
 
 이 모듈에서는 ArgoCD를 사용하여 Git으로부터 production-ready 프로젝트 구성을 배포한 다음, 이를 의도적으로 고장 내어 ArgoCD가 설정 차이(drift)를 어떻게 감지하는지 확인해 보겠습니다.
 
-=== Learning Objectives
+=== 학습 목표
 
 이 모듈을 마치면 여러분은 다음을 수행할 수 있게 됩니다:
 
@@ -28,7 +28,7 @@ GitOps는 클러스터 구성을 Git repository 내의 코드로 취급함으로
 * 자동 복구(self-healing)를 활성화하여 ArgoCD가 승인되지 않은 변경 사항을 자동으로 되돌리도록 설정합니다.
 
 image::diagrams/06_gitops.png[ArgoCD GitOps Sync Flow, align=center, link=self, window=blank]
-=== How GitOps Works on OpenShift
+=== OpenShift에서의 GitOps 작동 방식
 
 OpenShift GitOps는 link:https://argo-cd.readthedocs.io/en/stable/[ArgoCD, window=blank]를 사용하여 지속적인 조정 루프(reconciliation loop)를 구현합니다:
 
@@ -41,9 +41,9 @@ OpenShift GitOps는 link:https://argo-cd.readthedocs.io/en/stable/[ArgoCD, windo
 
 자세한 내용은 link:https://docs.redhat.com/en/documentation/red_hat_openshift_gitops/1.19/html/understanding_openshift_gitops/index[Understanding OpenShift GitOps, window=blank]를 참조하십시오.
 
-== Deploy with ArgoCD
+== ArgoCD를 사용한 배포
 
-=== Step 1: Access ArgoCD
+=== 1단계: ArgoCD 접속
 
 OpenShift GitOps는 클러스터에 이미 설치되어 있습니다. ArgoCD 인스턴스는 `openshift-gitops` namespace에서 실행 중입니다.
 
@@ -76,7 +76,7 @@ oc get pods -n openshift-gitops
 
 ArgoCD server, application controller, repo server, Redis 및 Dex pod가 모두 실행 중이어야 합니다.
 
-=== Step 2: Deploy a Project Configuration from Git
+=== 2단계: Git에서 프로젝트 구성 배포
 
 실제 운영 환경에서 플랫폼 팀은 resource quota, 기본 limit, network policy가 포함된 namespace 등 표준 프로젝트 구성을 Git에 정의합니다. 새로운 모든 팀 프로젝트는 동일한 baseline 구성을 적용받게 됩니다. 이제 이를 배포해 보겠습니다.
 
@@ -210,9 +210,9 @@ oc get networkpolicy -n gitops-managed-project
 
 TIP: OpenShift console에서 **Home (홈) -> Projects (프로젝트)**로 이동하여 `gitops-managed-project`를 선택하십시오. **Overview (개요)** 탭 아래에서 ResourceQuota 구성을 확인할 수 있습니다.
 
-== Drift Detection & Self-Healing
+== Drift 감지 및 자동 복구
 
-=== Step 3: Simulate Configuration Drift
+=== 3단계: 구성 Drift 시뮬레이션
 
 이제 누군가 승인되지 않은 수동 변경(unauthorized manual change)을 시도할 때 어떤 일이 발생하는지 확인해 보겠습니다. 이는 운영 환경에서 누군가 "단지 급하게 무언가를 고쳐야 할 때" 흔히 발생하는 시나리오입니다.
 
@@ -256,7 +256,7 @@ ArgoCD는 변경된 특정 필드만 정확히 짚어냅니다. 변경을 거치
 
 이것이 운영 팀에게 제공되는 GitOps의 강점입니다. 수백 개의 리소스 중에서도 baseline에서 이탈한 리소스를 언제, 어떤 부분이 변경되었는지 즉시 정확하게 특정할 수 있습니다.
 
-=== Step 4: Restore the Desired State
+=== 4단계: 원하는 상태 복구
 
 **Git으로부터 다시 동기화(Resync):**
 
@@ -278,7 +278,7 @@ echo
 
 출력 결과: `20` - pod quota가 다시 Git에 정의된 원래 값으로 복원되었습니다. 승인되지 않은 변경 사항이 되돌려졌습니다.
 
-=== Step 5: Enable Self-Healing
+=== 5단계: 자동 복구 활성화
 
 이전 단계에서는 수동으로 다시 동기화해야 했습니다. 실제 운영 환경에서는 사람이 개입하지 않고도 ArgoCD가 설정 차이(drift)를 알아서 되돌려주는 자동 복구(self-healing)를 원할 것입니다.
 
@@ -321,7 +321,7 @@ Application에 진입하여 **Last Sync** 타임스탬프를 확인해 보십시
 image::gitops-events-sync-history.png[ArgoCD Events tab showing drift detection and automatic resync, link=self, window=blank]
 이것이 프로덕션 클러스터가 규정 준수(compliance) 상태를 지속하는 방법입니다. 누군가가 수동으로 구성을 변경하더라도, ArgoCD는 Git에 정의된 설정을 지속적으로 강제합니다.
 
-== When to Use GitOps
+== GitOps 활용 시점
 
 GitOps는 다음과 같은 환경에서 가장 큰 가치를 제공합니다:
 
@@ -332,7 +332,7 @@ GitOps는 다음과 같은 환경에서 가장 큰 가치를 제공합니다:
 
 자세한 내용은 link:https://docs.redhat.com/en/documentation/red_hat_openshift_gitops/1.19/html/understanding_openshift_gitops/index[Understanding OpenShift GitOps, window=blank]를 참조하십시오.
 
-== Cleanup & Summary
+== 정리 및 요약
 
 === 요약
 

@@ -14,9 +14,9 @@ include::partial$console-access.adoc[]
 
 TIP: 설치 후에 **변경할 수 없는** 두 가지가 있습니다: 바로 **pod 네트워크 CIDR**과 **service 네트워크 CIDR**입니다. 이 대역이 회사 내부 네트워크와 중복될 경우, 클러스터를 처음부터 다시 구축해야 합니다.
 
-== 클러스터 상태(Health) 점검
+== 클러스터 상태 점검
 
-=== 1단계: Verify Cluster Operators 검증 (기본 상태 점검)
+=== 1단계: 클러스터 오퍼레이터 검증 (기본 상태 점검)
 
 **ClusterOperators**는 클러스터 상태의 단일 진실 공급원(single source of truth)입니다. 각 Operator는 특정 클러스터 구성 요소를 관리하고 상태를 보고합니다.
 
@@ -122,7 +122,7 @@ with --to-image or wait for new updates to be available.
 image::installation-images/cluster-settings-update.png[Cluster Settings Details tab showing version and update channel, link=self, window=blank]
 **주요 핵심 사항:** Operator들이 클러스터 업데이트를 관리합니다. 업데이트를 사용할 수 있는 경우, 단일 명령어로 업그레이드를 수행할 수 있습니다: `oc adm upgrade --to=<version>`
 
-== 3단계: Node 구성 검증
+== 3단계: 노드 구성 검증
 
 Platform Overview에서 살펴보았던 node 상태 점검 외에도, 설치 이후 단계에 특화된 매우 중요한 검증 단계인 **MachineConfigPools**가 있습니다.
 
@@ -155,7 +155,7 @@ MachineConfigPools는 node 레벨의 구성(커널 매개변수, systemd 유닛 
 image::installation-images/machineconfigpools-console.png[MachineConfigPools showing master and worker pools with Up to date status, link=self, window=blank]
 녹색의 *Up to date* 표시와 *Degraded: False*는 모든 node의 구성이 성공적으로 적용되었음을 확인해 줍니다. 업그레이드나 구성 변경 중에는 *Update status*가 *Updating*으로 바뀌는 것을 볼 수 있습니다. 이 뷰는 CLI를 매번 조회하지 않고도 node의 설정 배포 진행 상태를 빠르게 확인할 수 있는 유용한 수단입니다.
 
-== 4단계: 네트워킹 테스트 (실습)
+== 4단계: 네트워킹 테스트
 
 테스트 애플리케이션과 route를 생성하여 네트워킹이 원활하게 작동하는지 검증하십시오:
 
@@ -282,7 +282,7 @@ oc logs test-storage -n storage-test
 oc delete project storage-test &>/dev/null &
 ----
 
-=== 6단계: etcd 상태(Health) 검증
+=== 6단계: etcd 상태 검증
 
 etcd는 모든 클러스터 상태를 보유하는 분산형 키-값(key-value) 저장소입니다. etcd의 상태가 비정상적이라면, 클러스터 전체가 정상적일 수 없습니다. 설치 후에 반드시 점검해야 할 두 가지 주요 메트릭은 다음과 같습니다:
 

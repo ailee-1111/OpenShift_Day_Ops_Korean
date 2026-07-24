@@ -6,17 +6,17 @@
 
 include::partial$console-access.adoc[]
 
-== The Scenario
+== 시나리오
 
 애플리케이션이 트래픽을 수신하고 있지만, 기본적으로 모든 pod는 다른 모든 pod와 통신할 수 있으며 모든 pod가 인터넷에 접속할 수 있습니다. 이는 production-ready 환경이 아닙니다.
 
 이 모듈에서는 보안을 강화합니다. pod를 격리하기 위해 NetworkPolicy를 구현하고, 외부로 나가는 outbound 트래픽을 제어하기 위해 EgressFirewall을 구성하며, 외부 방화벽에서 allowlist에 추가할 수 있도록 예측 가능한 소스 IP를 설정하기 위해 EgressIP를 구성합니다.
 
-== OpenShift Networking
+== OpenShift 네트워킹
 
 OpenShift는 **OVN-Kubernetes**를 network plugin으로 사용합니다 (4.20에서 지원되는 유일한 옵션입니다). 이는 pod 네트워킹, NetworkPolicy를 통한 네트워크 격리, egress 트래픽 제어 및 선택적 IPsec 암호화를 처리합니다.
 
-=== View Cluster Network Configuration
+=== 클러스터 네트워크 구성 확인
 
 [source,bash,role="execute"]
 ----
@@ -31,7 +31,7 @@ TIP: OpenShift console의 **Administration (관리) → Cluster Settings (클러
 * `clusterNetwork` - pod 네트워킹을 위한 IP 대역 (클러스터마다 다름)
 * `serviceNetwork` - Service를 위한 IP 대역 (클러스터마다 다름)
 
-=== Verify Network Operator Health
+=== 네트워크 오퍼레이터 상태 확인
 
 [source,bash,role="execute"]
 ----
@@ -47,11 +47,11 @@ oc get pods -n openshift-ovn-kubernetes
 
 클러스터에서 실행 중인 OVN pod들을 볼 수 있습니다: `ovnkube-node` (모든 node에서 실행되는 DaemonSet) 및 `ovnkube-control-plane` (OVN control plane을 관리하는 Deployment).
 
-== NetworkPolicy: Pod-to-Pod Security
+== NetworkPolicy: Pod 간 보안
 
 기본적으로 모든 pod는 다른 모든 pod와 통신할 수 있습니다. **NetworkPolicy**는 이를 제한합니다.
 
-=== Create Test Projects
+=== 테스트 프로젝트 생성
 
 [source,bash,role="execute"]
 ----
@@ -78,7 +78,7 @@ oc get pods -n netpol-backend
 
 계속 진행하기 전에 두 pod가 모두 `Running` 상태로 표시되어야 합니다.
 
-=== Test Default Connectivity (Should Work)
+=== 기본 연결성 테스트 (통과해야 함)
 
 frontend에서 backend로의 연결성을 테스트합니다:
 
@@ -90,7 +90,7 @@ oc exec -n netpol-frontend deployment/frontend -- curl -s --connect-timeout 5 ht
 
 예상 결과: 애플리케이션의 HTML 출력이 나타납니다. 기본적으로 연결성이 작동합니다.
 
-=== Apply Deny-All NetworkPolicy
+=== Deny-All NetworkPolicy 적용
 
 [source,bash,role="execute"]
 ----
@@ -109,7 +109,7 @@ EOF
 
 다음 세 줄이 모든 작업을 처리합니다: `podSelector: {}`는 모든 pod를 대상으로 지정하고, `policyTypes: Ingress`는 inbound 트래픽을 제어함을 의미하며, 비어 있는 `ingress: []` 리스트는 어떠한 트래픽도 허용하지 않음을 의미합니다. 이는 표준 "default deny" 패턴입니다. 먼저 모든 것을 차단한 후, 특정 구멍을 뚫어 트래픽을 허용하는 방식입니다.
 
-=== Test Connectivity Again (Should Fail)
+=== 연결성 재테스트 (실패해야 함)
 
 [source,bash,role="execute"]
 ----
@@ -119,7 +119,7 @@ oc exec -n netpol-frontend deployment/frontend -- curl -s --connect-timeout 5 ht
 
 예상 결과: 연결 시간 초과 (5초 후에도 출력이 없음). NetworkPolicy가 이를 차단했습니다.
 
-=== Allow Traffic from Specific Namespace
+=== 특정 네임스페이스로부터의 트래픽 허용
 
 이제 특정 트래픽만 허용하기 위해 구멍을 뚫습니다. frontend namespace만 backend에 도달할 수 있도록 허용하고, 포트는 8080만 허용합니다:
 
@@ -153,7 +153,7 @@ EOF
 
 이는 매우 정밀하게 제어됩니다: `deployment: backend` 라벨이 지정된 pod에 대해서만, `app-tier: frontend` 라벨이 지정된 namespace로부터, TCP 8080 포트로만 트래픽을 허용합니다. 그 외의 모든 트래픽은 여전히 `deny-all` 정책에 의해 차단됩니다.
 
-=== Test Connectivity (Should Work Again)
+=== 연결성 테스트 (다시 통과해야 함)
 
 [source,bash,role="execute"]
 ----
@@ -163,7 +163,7 @@ oc exec -n netpol-frontend deployment/frontend -- curl -s --connect-timeout 5 ht
 
 예상 결과: 애플리케이션의 HTML 출력이 나타납니다. 허용(allow) 정책이 적용되었습니다.
 
-=== View NetworkPolicies
+=== NetworkPolicy 조회
 
 [source,bash,role="execute"]
 ----
@@ -180,7 +180,7 @@ image::netpol-deny-all.png[deny-all NetworkPolicy showing all incoming traffic d
 image::netpol-allow-frontend.png[allow-from-frontend NetworkPolicy showing selectors and port rule, link=self, window=blank]
 방금 작성한 YAML과 비교해 보십시오. 실제 운영 환경에서 50개의 namespace에 걸쳐 있는 정책을 감사(audit)해야 할 때, 이 화면은 원본 YAML을 읽는 것보다 훨씬 더 빠릅니다.
 
-=== NetworkPolicy Best Practices
+=== NetworkPolicy 권장 사항
 
 [cols="1,2"]
 |===
@@ -199,7 +199,7 @@ image::netpol-allow-frontend.png[allow-from-frontend NetworkPolicy showing selec
 |정책의 목적을 기록하기 위해 annotation을 사용하십시오.
 |===
 
-=== AdminNetworkPolicy: Cluster-Scoped Policies
+=== AdminNetworkPolicy: 클러스터 범위 정책
 
 일반적인 NetworkPolicy는 namespace 범위(namespace-scoped)로 작동하므로 각 팀이 개별적으로 관리합니다. 반면 **AdminNetworkPolicy (ANP)**는 클러스터 범위(cluster-scoped) 리소스로, 플랫폼 관리자가 모든 namespace에 걸쳐 네트워크 정책을 강제할 수 있도록 하며, namespace 범위의 정책보다 높은 우선순위를 가집니다.
 
@@ -272,9 +272,9 @@ bash <(curl -sL https://raw.githubusercontent.com/rhpds/openshift-days-ops-showr
 
 NOTE: AdminNetworkPolicy는 `policy.networking.k8s.io/v1alpha1`을 사용합니다. 대체 수단(fallback)으로 작동하는 `BaselineAdminNetworkPolicy`도 존재합니다. 이는 다른 ANP나 NetworkPolicy가 일치하지 않는 경우에만 적용됩니다. ANP와 BANP를 결합하면 플랫폼 팀이 가드레일을 제공하면서도 namespace 수준에서의 맞춤 구성을 허용할 수 있습니다.
 
-== Egress Controls
+== Egress 제어
 
-=== EgressFirewall: Controlling Outbound Traffic
+=== EgressFirewall: 아웃바운드 트래픽 제어
 
 **EgressFirewall**은 pod가 도달할 수 있는 외부 IP/도메인을 제어합니다. 이는 OVN-Kubernetes의 기능입니다.
 
@@ -391,7 +391,7 @@ NOTE: 와일드카드 DNS 이름 (예: `*.redhat.com`)은 OpenShift 4.20의 Tech
 * deny-all **egress** NetworkPolicy를 추가하면 DNS 확인이 작동하지 않게 됩니다. pod는 `openshift-dns` namespace에 있는 CoreDNS(53번 UDP/TCP 포트)에 도달해야 합니다. egress를 제한할 때는 항상 DNS를 명시적으로 허용하십시오.
 ====
 
-=== EgressIP: Predictable Source IPs
+=== EgressIP: 예측 가능한 소스 IP
 
 image::diagrams/04_egress_ip.png[OpenShift EgressIP Architecture, align=center, link=self, window=blank]
 **EgressIP**는 특정 pod에서 외부로 나가는 트래픽에 고정된 소스 IP를 할당합니다. 외부 방화벽에서 우리 클러스터를 allowlist에 추가해야 할 때 유용합니다.
@@ -459,11 +459,11 @@ spec:
 |IP 기반 인증을 요구하는 레거시 시스템에 연결합니다.
 |===
 
-== DNS and Service Discovery
+== DNS 및 서비스 디스커버리
 
 OpenShift는 Service에 대해 자동 DNS를 제공합니다.
 
-=== DNS Format
+=== DNS 형식
 
 Service는 다음 형식으로 연결 가능합니다:
 
@@ -471,7 +471,7 @@ Service는 다음 형식으로 연결 가능합니다:
 <service-name>.<namespace>.svc.cluster.local
 ----
 
-=== Test DNS Resolution
+=== DNS 확인 테스트
 
 아무 pod에서나 DNS 확인을 테스트합니다:
 
@@ -482,7 +482,7 @@ oc exec -n netpol-frontend deployment/frontend -- getent hosts backend.netpol-ba
 
 backend Service의 Cluster IP와 호스트 이름이 표시되어야 합니다. 이는 pod가 클러스터 DNS를 통해 이름으로 다른 Service를 확인할 수 있음을 증명합니다.
 
-=== View Cluster DNS Configuration
+=== 클러스터 DNS 구성 조회
 
 [source,bash,role="execute"]
 ----
@@ -495,7 +495,7 @@ oc get dns cluster -o yaml
 
 NOTE: 클라우드 플랫폼(AWS, Azure, GCP)의 경우, 클라우드 DNS 존을 위한 `publicZone` 및 `privateZone` 필드도 표시됩니다. 다른 플랫폼에서는 해당 필드가 없을 수 있습니다.
 
-=== View CoreDNS Pods
+=== CoreDNS Pod 조회
 
 [source,bash,role="execute"]
 ----
@@ -504,7 +504,7 @@ oc get pods -n openshift-dns
 
 CoreDNS는 클러스터 내의 모든 pod에 대해 DNS 확인을 제공합니다.
 
-== Cleanup & Summary
+== 정리 및 요약
 
 [source,bash,role="execute"]
 ----
@@ -541,7 +541,7 @@ oc get egressip -A
 oc get dns cluster -o yaml
 ----
 
-=== Additional Resources
+=== 추가 리소스
 
 * **OVN-Kubernetes:** link:https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/ovn-kubernetes_network_plugin/index[OVN-Kubernetes network plugin, window=blank]
 * **NetworkPolicy:** link:https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/networking/network-policy[About network policy, window=blank]

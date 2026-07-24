@@ -163,9 +163,9 @@ oc get endpointslice -l kubernetes.io/service-name=weathernow -n app-management
 
 각 pod의 IP가 엔드포인트(endpoint) 목록에 매핑되어 있습니다. 새 pod가 구동을 시작하면 자동으로 매핑 리스트에 등록되며, pod가 제거될 경우 매핑 정보에서 소멸됩니다.
 
-== 복원력(Resilience)
+== 복원력
 
-=== 자동 복구 (Self-Healing)
+=== 자동 복구
 
 pod가 예기치 않게 소멸되면, OpenShift는 새 독립된 pod를 자동으로 생성하여 대체합니다. 이 과정을 확인해 보겠습니다.
 
@@ -196,7 +196,7 @@ TIP: 콘솔의 **Workloads (워크로드) -> Pods (파드)** (프로젝트: `app
 
 **Deployment controller**가 감지한 현재 활성 상태(2개 pod)가 목표 바라는 상태(3개 pod)와 상이함을 인지하고, 즉각 새로운 파드를 생성해 대체를 기획해 주었습니다. 이 과정 전반은 관리자의 개입 없이 자동으로 순식간에 진행됩니다.
 
-=== 애플리케이션 프로브 (Application Probes)
+=== 애플리케이션 프로브
 
 OpenShift는 애플리케이션의 실질적인 정상 여부를 어떻게 진단할 수 있을까요? 프로브가 없다면 컨테이너의 프로세스가 기동해 있는 한 내부 로직이 행(hang) 상태에 빠지거나, 리스너 포트가 비정상 다운되거나, 모든 요청에 에러를 반환하는 경우에도 pod는 그냥 `Running`으로 표시될 뿐입니다. 프로브는 이러한 맹점을 보완해 줍니다.
 
@@ -503,7 +503,7 @@ oc rollout undo deployment/myapp               # 고속 롤백 단행
 oc get pdb -A                                  # PDB 설정 상황 점검
 ----
 
-=== 리소스 정리
+=== 정리
 
 [source,bash,role="execute"]
 ----

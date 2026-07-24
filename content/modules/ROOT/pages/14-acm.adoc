@@ -1,6 +1,6 @@
 = ACM Multi-Cluster Management
 
-== Module Overview (모듈 개요)
+== 모듈 개요
 
 **소요 시간:** 30분 +
 **형식:** Hands-on 실습 +
@@ -8,7 +8,7 @@
 
 include::partial$console-access.adoc[]
 
-== Learning Objectives (학습 목표)
+== 학습 목표
 
 이 모듈을 마칠 때쯤 다음 작업을 수행할 수 있게 됩니다:
 
@@ -18,16 +18,16 @@ include::partial$console-access.adoc[]
 * US - EMEA 간 cluster 전체에 policy 기반 governance 적용
 
 [[multi-env-clusters]]
-== 다중 환경 Red Hat OpenShift Cluster 및 Virtual Machine 생성과 관리
+== 다중 환경 Red Hat OpenShift 클러스터 및 가상 머신 생성과 관리
 
 설치부터 일상적인 운영에 이르기까지 cluster를 제어할 때, 귀하는 workload와 데이터가 저장되는 위치를 결정하고, 고유의 policy를 설정하며, 컴플라이언스를 유지할 수 있습니다. 이 방식을 통해 규제 변화에 신속하게 적응하고, 비즈니스 유연성을 유지하며, 외부 공급업체에 대한 의존도를 낮출 수 있습니다. cluster와 virtual machine의 유연한 관리를 활용하면, 초기 단계부터 보안 및 컴플라이언스 요구 사항을 만족하는 클라우드 환경을 구축할 수 있습니다.
 
 [[hub-cluster-overview]]
-=== RHACM Management Cluster 개요
+=== RHACM 관리 클러스터 개요
 
 Red Hat Advanced Cluster Management (RHACM)은 전체 OpenShift cluster 플릿(fleet)을 관리할 수 있도록 클라우드 환경의 중앙 집중식 control plane 역할을 합니다. 다중 환경에서 cluster 수명 주기 관리, virtual machine 관리, policy 적용, 애플리케이션 배포 및 관찰 가능성(observability)을 위한 단일 권한 지점과 통합 인터페이스를 제공합니다.
 
-=== Kubernetes Cluster 생성 및 관리
+=== Kubernetes 클러스터 생성 및 관리
 
 Red Hat Advanced Cluster Management for Kubernetes (RHACM)은 신규 OpenShift cluster의 배포와 관리를 단순화합니다. IPI 및 Assisted Installer와 같은 전략을 사용할 수 있지만, RHACM은 한 단계 더 나아가 cluster 생성 마법사(cluster creation wizard)를 사용하여 몇 번의 클릭만으로 손쉽게 신규 cluster를 배포할 수 있도록 지원합니다.
 
@@ -124,7 +124,7 @@ NOTE: Hosted Control Plane (HCP) cluster를 배포하는 데 약 5~10분이 소�
 
 [[create-manage-vms]]
 
-== RHACM Console을 사용한 Virtual Machine 생성 및 관리
+== RHACM 콘솔을 사용한 가상 머신 생성 및 관리
 
 OpenShift Virtualization과 결합된 Red Hat Advanced Cluster Management (RHACM)은 단일 console에서 policy-as-code 기반으로 cluster 및 VM의 통합 제어를 실현합니다. 이를 통해 resource를 레이블링하고, 배치를 가이드하며, 컴플라이언스를 자동화함으로써 상이한 관리 도구 사이를 오갈 필요를 줄이고 모든 workload 전반에 일관된 통제를 보장합니다.
 
@@ -136,7 +136,7 @@ OpenShift Virtualization과 결합된 Red Hat Advanced Cluster Management (RHACM
 
 NOTE: 이미 *rhel-webserver*라는 이름의 Virtual Machine이 사전 배포되어 있는 것을 보셨을 것입니다. 이 장비는 향후 실습에서 유용하게 활용되므로, 다른 모듈 진행에 지장이 가지 않도록 절대 삭제하거나 전원을 끄지 마십시오.
 
-=== RHACM Console을 사용한 Virtual Machine 배포
+=== RHACM 콘솔을 사용한 가상 머신 배포
 
 .실습 절차
 . 햄버거 메뉴를 사용하여 드롭다운에서 *Fleet Virtualization (플릿 가상화)* 메뉴를 선택하십시오.
@@ -179,7 +179,7 @@ image::12-vm-finish.png[link=self, window=blank, width=100%, Create VM]
 ====
 
 [[container-workloads]]
-=== OpenShift GitOps를 통한 Container Workload 배포 및 관리
+=== OpenShift GitOps를 통한 컨테이너 워크로드 배포 및 관리
 
 OpenShift GitOps(Argo CD 및 RHACM 사용)를 사용하면 Git을 단일 실뢰 소스(source of truth)로 삼아 다중 cluster 환경에서 애플리케이션을 배포하고 관리할 수 있습니다.
 
@@ -290,7 +290,7 @@ image::03-app-complete.png[link=self, window=blank, width=100%, ACM App Placemen
 * **자율적인 모니터링 수행** — 사전에 정의한 guardrail과의 컴플라이언스 이탈(drift) 현상을 지속적으로 탐색하고, 위반 내역을 중앙 시스템에 신속하게 표출하여 보안 안정성을 제공합니다.
 * **권한 위임 및 한계 설정** — 애플리케이션 개발 팀이 플랫폼 인프라 팀이 지정한 안전한 컴플라이언스 프레임워크 한도 안에서 신속히 개발 작업을 진행하도록 지원하며, 비즈니스 자율성으로 인해 보안 및 규격 표준이 타협되지 않도록 방지합니다.
 
-=== 리전 단일 Cluster 대상 Policy 선언
+=== 리전 단일 클러스터 대상 정책 선언
 
 EMEA 영역에 적용되는 유럽연합(EU)의 General Data Protection Regulation (GDPR)은 전 세계에서 가장 정교하고 포괄적인 데이터 보호 프레임워크 중 하나입니다. 동시에 EU에서 비즈니스를 영위하는 수많은 조직들에 복잡한 엔지니어링 문제를 안겨 주기도 합니다. EMEA 영역에서 작동되는 Kubernetes cluster의 경우, GDPR 규제에 적합한 구체적인 기술 규정 요소를 policy 형태로 코드화해야 합니다.
 
@@ -299,7 +299,7 @@ GDPR의 핵심 기술 요구 사항을 만족시키기 위해 EMEA cluster에 �
 - **data protection by design** (Article 25 — 네트워크 격리)
 - **security of processing** (Article 32 — pod 보안 강화)
 
-=== EMEA Managed Cluster에 Policy 배포
+=== EMEA Managed 클러스터에 정책 배포
 
 .실습 절차
 . Fleet Management Console에서 우측 상단의 *+ 기호* -> *Import YAML (YAML 가져오기)* 탭을 클릭하십시오.
@@ -433,7 +433,7 @@ image::02-rhacm-yaml-5.png[link=self, window=blank, width=100%]
 policy를 선언하고 설정함으로써, EMEA cluster가 GDPR 기준 요구 사항을 완벽히 충족하도록 조치했습니다. 향후 동일한 레이블로 배포되는 모든 신규 cluster 또한 이 컴플라이언스 요구 사항을 만족하게 됩니다.
 ====
 
-=== Multicluster Management 핵심 요약
+=== 멀티클러스터 관리 핵심 요약
 
 * **중앙 집중형 Cluster 관리** — RHACM을 사용하여 단일 위치에서 여러 리전에 걸친 OpenShift cluster를 생성하고, 레이블링을 수행하며 관리합니다.
 

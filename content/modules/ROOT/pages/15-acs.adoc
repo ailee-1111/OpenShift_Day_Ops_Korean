@@ -1,6 +1,6 @@
 = Red Hat Advanced Cluster Security (RHACS)
 
-== Module Overview (모듈 개요)
+== 모듈 개요
 
 **소요 시간:** 15-20분 +
 **형식:** Hands-on 실습 +
@@ -10,7 +10,7 @@ include::partial$console-access.adoc[]
 
 NOTE: RHACS console에도 동일한 admin credential이 사용됩니다.
 
-== Learning Objectives (학습 목표)
+== 학습 목표
 
 이 모듈을 마칠 때쯤 다음 작업을 수행할 수 있게 됩니다:
 
@@ -18,7 +18,7 @@ NOTE: RHACS console에도 동일한 admin credential이 사용됩니다.
 * compliance 리포팅 및 compliance 체크 설정
 * Red Hat Advanced Cluster Security (RHACS)를 통한 workload 스캔
 
-== ACS Console 접속 확인
+== ACS 콘솔 접속 확인
 
 RHACS Web Console은 cluster들에 대한 통합된 보안 뷰를 제공합니다. 본 워크숍에서는 임베디드 브라우저 탭을 사용할 것을 권장합니다.
 
@@ -79,13 +79,13 @@ RHACS는 Kubernetes 환경의 필수적인 보안 워크플로우를 위해 다�
 RHACS를 활용하면, CNCF가 지원하는 Kubernetes 환경 전반에서 Kubernetes cluster들을 안전하고 컴플라이언스 규격에 부합하도록 유지할 수 있습니다.
 
 [[rhacs-compliance-operator-installation-and-compliance-checks]]
-== Compliance Checks with RHACS and the Compliance Operator
+== Compliance Operator 및 RHACS를 통한 컴플라이언스 점검
 
 프로덕션 cluster와 애플리케이션은 보안 표준 및 내부 policy 규격을 상시 준수해야 합니다. RHACS는 OpenShift compliance operator와 협력하여 보안 상태를 실시간 측정하고, compliance 격차(gap)를 감지하며, 서비스가 프로덕션에 배포되거나 시간이 지남에 따라 compliance에서 이탈(drift)하기 전에 미리 조치할 수 있도록 돕습니다.
 
 먼저, compliance 체크 결과의 차이를 체감할 수 있도록 local cluster에 간단한 configuration을 수정해 보겠습니다.
 
-=== Compliance 체크 패스를 위한 간단한 Cluster 수정
+=== 컴플라이언스 체크 통과를 위한 간단한 클러스터 수정
 
 *ocp4-e8* compliance 표준에 집중하여, `ocp4-e8-ocp-allowed-registries` 통제 항목을 어떻게 패스할 수 있는지 알아보겠습니다. 다음 절차를 실행하여 프로덕션 cluster에 대한 체크를 패스하도록 설정하십시오.
 
@@ -135,7 +135,7 @@ status:
 
 좋습니다! 이제 local cluster에 대한 compliance 체크 스캔을 구성해 보겠습니다.
 
-=== Compliance 스캔 설정
+=== 컴플라이언스 스캔 설정
 
 compliance 스캔을 설정하기 위해 다음 절차를 수행하십시오.
 
@@ -235,13 +235,13 @@ image::https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcHI1ZGQwYWNnd3doY2s4MDNp
 
 **훌륭합니다!** Compliance 리포트 작성은 까다로운 업무가 될 수 있습니다. RHACS와 OpenShift는 여러분의 조직들이 리전의 장벽을 뛰어넘어 각종 감사 및 compliance 체크를 손쉽게 통과할 수 있도록 고안되었습니다.
 
-== Runtime 보안 및 Immutable Workloads
+== 런타임 보안 및 불변 워크로드
 
 프로덕션 Kubernetes 환경에서는 cluster 내부에서 실시간 실행되는 대상을 철저히 제어하는 것이 보안상 대단히 중요합니다. 파일 무결성 및 이상 징후 행동을 모니터링하면, 승인된 원래의 이미지나 configuration 규격으로부터 이탈하는 드리프트(drift) 현상을 신속히 감지하는 데 도움이 됩니다.
 
 RHACS는 인가되지 않은 액세스 시도, 지능형 위협(persistent threats), 횡적 이동(lateral movement), 파일 무결성 훼손 등 위험성 높은 비정상 행동을 스스로 감지하고 차단하는 보안 policy들을 내장하고 있습니다. 이 policy들은 컨테이너의 불변성 원칙(immutable container principle), 즉 컨테이너가 뜻하지 않은 불필요한 변경 사항 없이 검증되고 허가된 이미지만 정확하게 실행해야 한다는 규칙을 정밀하게 보장해 줍니다.
 
-== Policy-as-Code를 통한 Runtime 비정상 행동 제어
+== Policy-as-Code를 통한 런타임 비정상 행동 제어
 
 apt, apk, yum, dnf 등의 패키지 관리자(package manager)는 일반 virtual machine 환경에서는 매우 유용하지만, 프로덕션 컨테이너 내부에서 실행되어서는 안 됩니다. 이를 활성화해 두면 임의의 무분별한 소프트웨어 설치를 허용하는 꼴이 되며, cluster 내부의 공격 노출면(attack surface)을 확장하고 프로덕션 workload의 대전제인 감사 가능성(auditability) 및 불변성(immutability)을 정면으로 위배하게 됩니다.
 
@@ -396,7 +396,7 @@ LAST SEEN   TYPE      REASON                 OBJECT                           ME
 시스템을 파괴할 우려가 있는 자의적인 업데이트 설치 시도를 정상적으로 모니터링하고 성공적으로 차단했습니다! 다만 이제 보안 위협 분석 절차를 위해 반드시 사후 분류 및 심사(triage)가 수반되어야 하는 경고(alert) 로그가 시스템 상에 정식 기록되었습니다.
 
 [[violations-reporting-audit-compliance]]
-== 감사 및 컴플라이언스를 위한 Violations 분석 및 보고
+== 감사 및 컴플라이언스를 위한 위반 사항 분석 및 보고
 
 발생한 이벤트의 감사는 보안 모범 사례를 보장하고, 특정 policy가 트리거되었을 때 있었던 모든 물리적인 기록을 명확히 보존해 줍니다. RHACS는 발생한 위반(violation) 건마다 정교한 포렌식 데이터(forensic detail)를 자동으로 확보하므로, 이를 기반으로 원인을 심도 있게 규명하고 보고서를 생성하며 policy 수준을 더욱 예리하게 가다듬을 수 있습니다.
 
@@ -416,7 +416,7 @@ image::acs-security-09.png[RHACS violation detail for package manager policy, li
 적절히 구성된 연계 환경 하에서 감지된 개별 violation 로그 내역들은 Security Information and Event Management (SIEM) 솔루션으로 실시간 자동 포워딩되거나 API 조회를 통해 추출할 수 있습니다. UI에 상세히 나열되는 타임스탬프, 구동한 프로세스 유저 ID, 실행 시 입력 인자(arguments), 상위 프로세스 경로(ancestors), 통제 제어 행동(enforcement action) 등의 귀중한 포렌식 자료가 완벽히 보존됩니다.
 ====
 
-=== 환경 정리
+=== 정리
 
 .실습 절차
 . 이번 모듈 실습의 뒷정리를 위해 터미널 창에 다음 명령을 수행하여 데모 애플리케이션 및 ACS 설정 변경 내역들을 일괄 정리하십시오:
