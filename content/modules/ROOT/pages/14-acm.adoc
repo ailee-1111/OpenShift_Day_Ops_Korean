@@ -1,73 +1,73 @@
 = ACM Multi-Cluster Management
 
-== Module Overview
+== Module Overview (모듈 개요)
 
-**Duration:** 30 minutes +
-**Format:** Hands-on lab +
-**Audience:** Platform Engineers, Infrastructure Architects, IT Operations
+**소요 시간:** 30분 +
+**형식:** Hands-on 실습 +
+**대상:** Platform Engineers, Infrastructure Architects, IT Operations
 
 include::partial$console-access.adoc[]
 
-== Learning Objectives
+== Learning Objectives (학습 목표)
 
-By the end of this module, you will:
+이 모듈을 마칠 때쯤 다음 작업을 수행할 수 있게 됩니다:
 
-* Manage multiple clusters with Advanced Cluster Management (ACM)
-* Work with hosted control planes in multiple regions (HCP)
-* Work with Virtual Machines and GitOps based applications
-* Apply policy-based governance across clusters US - EMEA
+* Advanced Cluster Management (ACM)을 사용한 다중 cluster 관리
+* 여러 region에 걸쳐 있는 hosted control planes (HCP) 사용
+* Virtual Machines 및 GitOps 기반 애플리케이션 사용
+* US - EMEA 간 cluster 전체에 policy 기반 governance 적용
 
 [[multi-env-clusters]]
-== Multi-Environment Red Hat OpenShift Cluster and Virtual Machine Creation and Management
+== 다중 환경 Red Hat OpenShift Cluster 및 Virtual Machine 생성과 관리
 
-When you control your clusters—from setup to daily operations—you decide where your workloads and data live, set your own policies, and stay compliant. This way, you can quickly adapt to regulations, keep your business flexible, and avoid relying on outside providers. With flexible management of clusters and virtual machines, you can build a cloud that fits your security and compliance needs from the start.
+설치부터 일상적인 운영에 이르기까지 cluster를 제어할 때, 귀하는 workload와 데이터가 저장되는 위치를 결정하고, 고유의 policy를 설정하며, 컴플라이언스를 유지할 수 있습니다. 이 방식을 통해 규제 변화에 신속하게 적응하고, 비즈니스 유연성을 유지하며, 외부 공급업체에 대한 의존도를 낮출 수 있습니다. cluster와 virtual machine의 유연한 관리를 활용하면, 초기 단계부터 보안 및 컴플라이언스 요구 사항을 만족하는 클라우드 환경을 구축할 수 있습니다.
 
 [[hub-cluster-overview]]
-=== RHACM Management Cluster Overview
+=== RHACM Management Cluster 개요
 
-Red Hat Advanced Cluster Management (RHACM) serves as the centralized control plane of your cloud environment for managing your entire fleet of OpenShift clusters. It provides a single point of authority and unified interface for cluster lifecycle management, virtual machine management, policy enforcement, application deployment, and observability across multiple environments.
+Red Hat Advanced Cluster Management (RHACM)은 전체 OpenShift cluster 플릿(fleet)을 관리할 수 있도록 클라우드 환경의 중앙 집중식 control plane 역할을 합니다. 다중 환경에서 cluster 수명 주기 관리, virtual machine 관리, policy 적용, 애플리케이션 배포 및 관찰 가능성(observability)을 위한 단일 권한 지점과 통합 인터페이스를 제공합니다.
 
-=== Create and Manage Kubernetes Clusters
+=== Kubernetes Cluster 생성 및 관리
 
-Red Hat Advanced Cluster Management for Kubernetes (RHACM) simplifies the deployment and management of new OpenShift clusters. Strategies such as IPI and the Assisted Installer are available, but RHACM takes it a step further, allowing you to deploy new clusters with just a few clicks using the cluster creation wizard.
+Red Hat Advanced Cluster Management for Kubernetes (RHACM)은 신규 OpenShift cluster의 배포와 관리를 단순화합니다. IPI 및 Assisted Installer와 같은 전략을 사용할 수 있지만, RHACM은 한 단계 더 나아가 cluster 생성 마법사(cluster creation wizard)를 사용하여 몇 번의 클릭만으로 손쉽게 신규 cluster를 배포할 수 있도록 지원합니다.
 
-*For the first exercise, you will deploy a new cluster in the EMEA region so that you will have local, US and EMEA clusters to deploy your applications to.*
+*첫 번째 실습에서는 애플리케이션을 배포할 로컬, US 및 EMEA cluster를 확보하기 위해, EMEA region에 신규 cluster를 배포해 보겠습니다.*
 
-.Procedure
-. On the top left of the OpenShift Console, click the "Hamburger" drop down and select *Fleet Management -> *Infrastructure* -> *Clusters*
+.실습 절차
+. OpenShift Console의 좌측 상단에서 "햄버거" 드롭다운을 클릭하고 *Fleet Management (플릿 관리)* -> *Infrastructure (인프라)* -> *Clusters (클러스터)* 메뉴를 선택하십시오.
 +
 image::08-dropdown-menu-fleetM.png[link=self, window=blank, width=100%, Create VM]
 +
 [NOTE]
 ====
-If you don't see the dropdown your window is not wide enough - just click the "hamburger menu" (the three dashes) to reveal the side menu.
+드롭다운이 보이지 않는 경우 창 너비가 충분히 넓지 않기 때문일 수 있습니다. 이럴 때는 "햄버거 메뉴"(세 개의 줄 표시)를 클릭하여 사이드 메뉴를 확장하십시오.
 ====
 +
-. Next, click on the *Create cluster* button in the center of the screen:
+. 다음으로, 화면 중앙에 있는 *Create cluster* 버튼을 클릭하십시오:
 +
 image::103-create-cluster.png[link=self, window=blank, width=100%, Create Cluster]
 +
-. Click on the *Red Hat OpenShift Virtualization* button. You will see one option for the control plane type: *Hosted*
+. *Red Hat OpenShift Virtualization* 버튼을 클릭하십시오. control plane 유형으로 한 가지 옵션인 *Hosted*가 표시됩니다:
 +
 image::104-aws-credentials.png[link=self, window=blank, width=100%, AWS Credentials]
 +
-NOTE: You'll notice that the only option already highlighted is Red Hat OpenShift Virtualization, indicating that your credentials are saved for the purpose of speeding up this lab.
+NOTE: 이번 실습 속도를 높이기 위해 credential이 사전에 저장되어 있어, 오직 Red Hat OpenShift Virtualization 옵션만 활성화되어 있음을 확인할 수 있습니다.
 +
-. Click on the *Hosted* option.
-. Leave the *Infrastructure provider credential* as *hcp*.
-. Name your cluster *hcp-emea*
+. *Hosted* 옵션을 클릭하십시오.
+. *Infrastructure provider credential* 옵션은 *hcp*로 그대로 두십시오.
+. cluster 이름을 *hcp-emea*로 지정하십시오.
 +
 [source,sh,subs="attributes",role="copypaste"]
 ----
 hcp-emea
 ----
 +
-. Verify that is on the *clusters* space for the *Hosted cluster namespace*
-. Select *managed* for the *Cluster Set*
-. Next, select the release image *OpenShift 4.21.0* (or whatever the current 4.21.x release image is).
-. Select *ocs-external-storagecluster-ceph-rbd* for the Etcd Storage Class
-. Select *Single replica* for both the *Controller availability policy* and the *Infrastructure availability policy*.
-. Under Additional Labels enter *location=emea*
+. *Hosted cluster namespace*가 *clusters* 공간으로 지정되어 있는지 확인하십시오.
+. *Cluster Set*으로 *managed*를 선택하십시오.
+. 다음으로, 릴리스 이미지로 *OpenShift 4.21.0*(또는 현재 제공되는 최신 4.21.x 릴리스 이미지)을 선택하십시오.
+. Etcd Storage Class로 *ocs-external-storagecluster-ceph-rbd*를 선택하십시오.
+. *Controller availability policy*와 *Infrastructure availability policy* 모두에 대해 *Single replica*를 선택하십시오.
+. Additional Labels 하단에 *location=emea*를 입력하십시오.
 +
 [source,sh,subs="attributes",role="copypaste"]
 ----
@@ -76,84 +76,84 @@ location=emea
 +
 [NOTE]
 ====
-Single replica means components are not expected to be resilient to problems across most fault boundaries associated with high availability. This usually means running critical workloads with just 1 replica and with toleration of full disruption of the component.
+Single replica는 high availability(고가용성)와 관련된 대부분의 내결함성 장애 경계(fault boundaries) 내에서 구성 요소가 복원력을 유지하지 못할 수 있음을 의미합니다. 이는 대개 중요한 workload가 단 1개의 replica로 실행되며 구성 요소가 일시적으로 완전히 중단될 수 있음을 인정하는 형태입니다.
 ====
 +
-. Click on *Next* to continue.
+. *Next*를 클릭하여 계속 진행하십시오.
 +
 image::105-create-cluster-details.png[link=self, window=blank, width=100%, Create Cluster Details]
 +
 ====
-*On the next screen you can customize the name for the node pools, the amount of pool replicas, cores and memory.*
+*다음 화면에서는 node pools 이름, pool replicas의 수량, 코어 및 메모리를 사용자 정의할 수 있습니다.*
 ====
 +
-. Enter the name `hcp-emea` for the *Node pool name* and leave the other details as default.
+. *Node pool name*으로 `hcp-emea`를 입력하고 나머지 세부 정보는 기본값으로 두십시오.
 +
 [source,sh,subs="attributes",role="copypaste"]
 ----
 hcp-emea
 ----
 +
-. Click on *Next* to proceed.
+. *Next*를 클릭하여 진행하십시오.
 +
 image::106-create-cluster-nodepools.png[link=self, window=blank, width=100%, Create Cluster NodePools]
 +
 [NOTE]
 ====
-The next screen allows you to configure storage mappings type to use and its associated variables. We will leave these as default as these have already been configured on the backend and you do not need to change them.
+다음 화면에서는 사용할 스토리지 매핑(storage mapping) 유형 및 관련 변수를 구성할 수 있습니다. 백엔드에서 이미 사전에 구성해 두었으므로 따로 수정할 필요가 없으며, 기본값 그대로 두십시오.
 ====
 +
-. Click on *Next* to proceed.
+. *Next*를 클릭하여 진행하십시오.
 +
 image::107-create-cluster-networking.png[link=self, window=blank, width=100%, Create Cluster Networking]
 +
 ====
-*Once you are on the final Review section you will see a description of the cluster you are creating.*
+*마지막 Review 섹션에 도달하면, 생성 중인 cluster의 요약 사양이 표시됩니다.*
 ====
 +
-. Click the blue *Create* button to start the deployment process.
+. 파란색 *Create* 버튼을 클릭하여 배포 프로세스를 개시하십시오.
 +
 image::108-create-cluster-summary-create.png[link=self, window=blank, width=100%, Create Cluster Summary Page]
 
 [start=18]
-. Sit back and watch RHACM do its thing. You should see the Cluster creation process starting in the UI.
+. 대기하는 동안 RHACM이 실행하는 프로세스를 살펴보십시오. UI에서 Cluster 생성 프로세스가 개시되는 것을 확인할 수 있습니다.
 +
 image::03-cluster-creation.png[link=self, window=blank, width=100%, View New Cluster]
 +
-NOTE: Deploying this Hosted Control Plane (HCP) cluster will take about 5 to 10 minutes. Please continue the lab while waiting for this cluster to provision, we will use it later on.
+NOTE: Hosted Control Plane (HCP) cluster를 배포하는 데 약 5~10분이 소요됩니다. 이 cluster가 프로비저닝되는 동안 다음 실습을 계속 진행하십시오. 해당 cluster는 향후 단계에서 사용하게 됩니다.
 
 [[create-manage-vms]]
 
-== Create and Manage Virtual Machines Using the RHACM Console
+== RHACM Console을 사용한 Virtual Machine 생성 및 관리
 
-Red Hat Advanced Cluster Management (RHACM) with OpenShift Virtualization provides unified, policy-as-code driven control of clusters and VMs from a single console. It lets you label resources, enforce placement, and automate compliance—removing the need to jump between different management tools and ensuring consistent controls across all workloads.
+OpenShift Virtualization과 결합된 Red Hat Advanced Cluster Management (RHACM)은 단일 console에서 policy-as-code 기반으로 cluster 및 VM의 통합 제어를 실현합니다. 이를 통해 resource를 레이블링하고, 배치를 가이드하며, 컴플라이언스를 자동화함으로써 상이한 관리 도구 사이를 오갈 필요를 줄이고 모든 workload 전반에 일관된 통제를 보장합니다.
 
-By the end of this exercise, you will:
+이 실습을 마칠 때쯤 다음 작업을 수행할 수 있게 됩니다:
 
-* Navigate the RHACM Search interface to locate Virtual Machine resources across the entire fleet.
-* Provision a new Virtual Machine using the RHACM Creation Wizard.
-* Perform Day 2 operations (Stop, Start, Migrate) directly from the multi-cluster view.
+* 전체 플릿(fleet)에 걸친 Virtual Machine resource를 탐색하기 위해 RHACM Search 인터페이스 활용
+* RHACM 생성 마법사(Creation Wizard)를 사용하여 신규 Virtual Machine 프로비저닝
+* 다중 cluster 뷰에서 직접 Day 2 운영 작업(Stop, Start, Migrate) 수행
 
-NOTE: You might have noticed that we have already deployed a Virtual Machine for you called *rhel-webserver* we will leverage this machine in later exercises do not delete or power off as it will affect the other modules. 
+NOTE: 이미 *rhel-webserver*라는 이름의 Virtual Machine이 사전 배포되어 있는 것을 보셨을 것입니다. 이 장비는 향후 실습에서 유용하게 활용되므로, 다른 모듈 진행에 지장이 가지 않도록 절대 삭제하거나 전원을 끄지 마십시오.
 
-=== Deploy Virtual Machines Using the RHACM Console
+=== RHACM Console을 사용한 Virtual Machine 배포
 
-.Procedure
-. Using the Hamburger menu select the dropdown and click on select *Fleet Virtualization*
+.실습 절차
+. 햄버거 메뉴를 사용하여 드롭다운에서 *Fleet Virtualization (플릿 가상화)* 메뉴를 선택하십시오.
 +
 image::08-dropdown-menu.png[link=self, window=blank, width=100%, Create VM]
 +
-. Click the *Create* dropdown and select *From template*
+. *Create* 드롭다운을 클릭하고 *From template*를 선택하십시오.
 +
 image::09-create-menu.png[link=self, window=blank, width=100%, Create VM]
 
-. Under default template select *Red Hat Enterprise Linux 9 VM*
+. 기본 템플릿(default template) 아래에서 *Red Hat Enterprise Linux 9 VM*을 선택하십시오.
 +
 image::10-template-menu.png[link=self, window=blank, width=100%, Create VM]
 +
-NOTE: Notice all of the available templates to use, Windows VMs are fully supported as well.
+NOTE: 다양한 종류의 템플릿을 선택하여 사용할 수 있으며, Windows VM 또한 완벽히 지원됩니다.
 
-. Under Virtual machine name, enter the following and leave all other options as default (Disk size, Disk Source):
+. Virtual machine name으로 아래의 이름을 입력하고, 다른 모든 옵션(Disk size, Disk Source 등)은 기본값 그대로 유지하십시오:
 +
 [source,sh,role="copypaste"]
 ----
@@ -162,56 +162,56 @@ rhel9-lab-vm
 +
 [CAUTION]
 ====
-Please notice all of the available options to configure the VM with, these will change depending on your operating system
+VM을 configuration하는 데 사용할 수 있는 다양한 구성 옵션을 살펴보십시오. 이 옵션은 사용하는 운영 체제에 따라 다릅니다.
 ====
 +
-. Click *Quick create Virtual Machine* and watch for progress, this should take a couple of minutes to complete.
+. *Quick create Virtual Machine*를 클릭한 뒤 진행 상황을 관찰하십시오. 완료까지 수 분 정도 소요됩니다.
 
-. Once completed you will see the live console as well as stats about your VM.
+. 완료되면 실시간 console 화면과 함께 VM에 관한 통계 지표를 볼 수 있습니다.
 +
 image::12-vm-finish.png[link=self, window=blank, width=100%, Create VM]
 
 [TIP]
 ====
-*UI or GitOps—The Choice is Yours!*
+*UI 또는 GitOps—선택은 사용자의 몫입니다!*
 
-While this lab demonstrates the graphical capabilities of the RHACM console, Virtual Machines in OpenShift are fundamentally Kubernetes objects. You can define your VMs as code using YAML and deploy them using Red Hat OpenShift GitOps (ArgoCD). RHACM supports both workflows: use the UI for quick administration and discovery, or use GitOps for a fully declarative, audit-ready production pipeline. In cloud environments, GitOps workflows provide version-controlled infrastructure that meets compliance requirements and audit trails for regulatory demonstrations.
+본 실습에서는 RHACM console의 시각적인 관리 기능을 중점적으로 시연하지만, OpenShift에서 Virtual Machine은 기본적으로 Kubernetes 객체에 해당합니다. 따라서 YAML 파일을 사용하여 VM을 코드로 정의하고 Red Hat OpenShift GitOps (ArgoCD)를 통해 배포할 수 있습니다. RHACM은 두 가지 워크플로우를 모두 지원하므로, 빠른 관리 및 탐색에는 UI를 사용하고 완전히 선언적인 가동 및 감사가 필요한 프로덕션 파이프라인에는 GitOps를 사용할 수 있습니다. 클라우드 환경에서 GitOps 워크플로우는 규제 준수를 충족하기 위한 버전 관리 기반의 인프라 및 규제 당국 제출용 감사 이력(audit trail)을 보장합니다.
 ====
 
 [[container-workloads]]
-=== Deploy and Manage Container Workloads via OpenShift GitOps
+=== OpenShift GitOps를 통한 Container Workload 배포 및 관리
 
-OpenShift GitOps (using Argo CD and RHACM) lets you deploy and manage apps across clusters using Git as your source of truth.
+OpenShift GitOps(Argo CD 및 RHACM 사용)를 사용하면 Git을 단일 실뢰 소스(source of truth)로 삼아 다중 cluster 환경에서 애플리케이션을 배포하고 관리할 수 있습니다.
 
-There are two main ways clusters get updates from Git: 
-- In pull mode, each cluster gets its own updates, making things more secure and keeping everything within specific regions.
-- In push mode, a central tool sends updates out to clusters.
+cluster가 Git으로부터 업데이트를 가져오는 방식은 크게 두 가지가 있습니다:
+- pull mode에서는 각 cluster가 독립적으로 고유의 업데이트를 가져오므로 보안성이 우수하며, 특정 리전 내에서만 모든 프로세스가 처리되도록 유지합니다.
+- push mode에서는 중앙 관리 도구가 여러 cluster로 업데이트를 직접 전송합니다.
 
-For this lab, you’ll use the push model (with Argo CD already set up), so you can see how easy it is to deploy and manage apps with GitOps—even across multiple clusters in different locations.
+본 실습에서는 이미 Argo CD가 사전 구성된 push model을 적용하므로, 지리적으로 상이한 여러 cluster 환경에서도 GitOps를 통해 애플리케이션을 배포하고 관리하는 과정이 얼마나 간편한지 경험해 볼 수 있습니다.
 
 [[deploy-applications-using-openshift-gitops]]
 
-== Multi-environment Application Deployment and Management
+== 다중 환경 애플리케이션 배포 및 관리
 
-In this next step, you'll use Red Hat® OpenShift® GitOps with Argo CD to declaratively deploy the a demo application to all three clusters, including the local-cluster, EMEA cluster and the AWS US cluster. 
+다음 단계에서는 Red Hat® OpenShift® GitOps와 Argo CD를 사용하여 local-cluster, EMEA cluster 및 AWS US cluster를 포함한 세 개의 cluster 모두에 데모 애플리케이션을 선언적으로 배포해 보겠습니다.
 
-This is all to demonstrate automated, Git-driven multi-cluster consistency while supporting cloud requirements by keeping patient data securely within approved geographic boundaries.
+이를 통해 Git 구동형 자동화 다중 cluster 일관성을 확인하는 동시에, 환자 데이터를 허가된 지리적 영역 내에서 안전하게 격리 보관해야 하는 클라우드 컴플라이언스 요구 사항을 만족시키는 법을 배우게 됩니다.
 
-.Procedure
-. From the **Fleet Management** tab, navigate to *Applications* from the left side menu.
-. Click *Create application*, select *ArgoCD ApplicationSet - Push Model*.
-. Enter the following information: `skupper-patient-demo`
+.실습 절차
+. **Fleet Management (플릿 관리)** 탭에서 좌측 사이드 메뉴의 *Applications (애플리케이션)* 메뉴로 이동하십시오.
+. *Create application*을 클릭하고 *ArgoCD ApplicationSet - Push Model*을 선택하십시오.
+. 다음 정보를 입력하십시오: `skupper-patient-demo`
 +
 [source,sh,subs="attributes",role="copypaste"]
 ----
 skupper-patient-demo
 ----
 +
-. Open the *Argo server* dropdown and select *Add Argo Server*
+. *Argo server* 드롭다운을 열고 *Add Argo Server*를 선택하십시오.
 +
 image::13-argo.png[link=self, window=blank, width=100%, ArgoCD Create]
 +
-. Enter the following information:
+. 다음 정보를 입력하십시오:
 * *Name:* `openshift-gitops-global`
 +
 [source,sh,subs="attributes",role="copypaste"]
@@ -219,95 +219,94 @@ image::13-argo.png[link=self, window=blank, width=100%, ArgoCD Create]
 openshift-gitops-global
 ----
 +
-* *Namespace:* `openshift-gitops` (select from dropdown)
-* *ClusterSet:* `global` (remove `default`)
+* *Namespace:* `openshift-gitops` (드롭다운에서 선택)
+* *ClusterSet:* `global` (`default` 제거)
 +
 [IMPORTANT]
 ====
-In the next step, ensure Cluster set is set to `global`, otherwise you will have issues in the next steps.
+다음 단계에서 Cluster set이 `global`로 정상 설정되었는지 확실히 확인하십시오. 그렇지 않으면 향후 단계에서 오류가 발생할 수 있습니다.
 ====
 +
 image::03-argoconfig.png[link=self, window=blank, width=100%, ArgoCD Config]
 
-. Click *Add*
-. Select your newly registered ArgoCD server from the *Argo server* dropdown
+. *Add*를 클릭하십시오.
+. *Argo server* 드롭다운에서 방금 등록한 ArgoCD 서버를 선택하십시오.
 +
 image::03-app-gitops.png[link=self, window=blank, width=100%, App GitOps]
 +
-. Click *Next* to continue to the *Repository*
-. Under repository types, select the *Git* repository type
-. Enter the URL and select *Create new option* for the dropdown
+. *Next*를 클릭하여 *Repository* 화면으로 이동하십시오.
+. repository types 하단에서 *Git* 저장소 유형을 선택하십시오.
+. URL을 입력한 다음 드롭다운에서 *Create new option*을 선택하십시오.
 +
 [source,sh,subs="attributes",role="copypaste"]
 ----
 https://github.com/mfosterrox/demo-applications.git
 ----
-. Enter revision `main` and select *Create new option* for the Revision
-. Select *Path* from the dropdown (if you don't see anything in the dropdown make sure you created new options in the previous steps):
+. Revision 정보로 `main`을 입력한 뒤 Revision 드롭다운에서 *Create new option*을 선택하십시오.
+. 드롭다운에서 *Path*를 선택하십시오 (만약 드롭다운에 아무것도 나타나지 않는다면 이전 단계에서 신규 옵션을 올바르게 추가했는지 확인하십시오):
 +
 [source,sh,subs="attributes",role="copypaste"]
 ----
 skupper-demo
 ----
 
-. Set Destination: *Remote Namespace*
+. Destination을 구성하십시오: *Remote Namespace*
 +
 [source,sh,subs="attributes",role="copypaste"]
 ----
 patient-portal
 ----
-. Leave defaults on page and then click *Next* to continue
+. 페이지의 다른 정보는 기본값으로 둔 채 *Next*를 클릭하여 계속 진행하십시오.
 +
 image::03-app-gitops-2.png[link=self, window=blank, width=100%, App ACM GitOps]
 +
-. Under *Placement*, verify that *New Placement* is selected.
-* *Cluster set:* Select `global`
-. Under *Label expressions* click *Add label expression* and select the following
+. *Placement* 하단에서 *New Placement*가 설정되어 있는지 확인하십시오.
+* *Cluster set:* `global`을 선택하십시오.
+. *Label expressions* 아래에서 *Add label expression*을 클릭하고 다음 정보를 지정하십시오:
 * *Label:* name
 * *Operator:* equals any of
 * *Values:* managed-hcp, hcp-emea
-. Uncheck the *Set a limit on the number of clusters selected*.
+. *Set a limit on the number of clusters selected* 항목의 체크박스를 해제하십시오.
 +
 [IMPORTANT]
 ====
-The *Cluster* set needs to be set to Global and the label values to be present in the placement rule, otherwise the application will not be deployed to the correct clusters.
+*Cluster* set은 반드시 Global로 설정되고 레이블 값들이 placement rule에 포함되어야 합니다. 그렇지 않으면 애플리케이션이 알맞은 cluster에 적절히 배포되지 못합니다.
 ====
 +
-. Verify all of the information is correct and click *Submit*.
+. 모든 정보가 올바른지 확인한 후 *Submit*을 클릭하십시오.
 
 ====
-If all steps were followed, you will be able to see the application deployed with all green checkmarks - This might take 15 minutes to complete so feel free to continue to the next module.
+모든 단계를 정확히 이행하셨다면, 애플리케이션이 정상 배포되어 초록색 체크 기호들이 활성화되는 것을 확인할 수 있습니다. 완료까지 약 15분이 소요될 수 있으므로 안심하고 다음 모듈을 계속 진행하셔도 좋습니다.
 ====
 
 image::03-app-complete.png[link=self, window=blank, width=100%, ACM App Placement US]
 
-== Security Through Policy Guardrails
+== Policy Guardrails를 통한 보안 보장
 
-*RHACM is built for this purpose!*
+*RHACM은 바로 이 목적을 위해 고안되었습니다!*
 
-* **Codify sovereignty policies** — express sovereignty and compliance requirements as policy resources, versioned and reviewed alongside your application code.
-* **Govern at scale** — target policies to specific regions or environments using ClusterSets and labels, enforcing consistency across geographies.
-* **Monitor autonomously** — continuously check for “drift” against your defined guardrails, surfacing violations centrally to maintain trust.
-* **Delegate, but enforce boundaries** — let application teams move fast within a framework set by platform teams, ensuring business autonomy never compromises organizational standards.
+* **Sovereignty policy 코드화** — 주권(sovereignty) 및 컴플라이언스 요구 사항을 policy resource로 선언하고, 애플리케이션 소스 코드와 함께 버전 관리 및 리뷰 프로세스 하에 관리합니다.
+* **대규모 Governance 제어** — ClusterSet 및 label을 활용하여 특정 리전이나 작업 환경을 명확히 지정함으로써, 지리적 영역 전반에 걸친 일관성을 보장합니다.
+* **자율적인 모니터링 수행** — 사전에 정의한 guardrail과의 컴플라이언스 이탈(drift) 현상을 지속적으로 탐색하고, 위반 내역을 중앙 시스템에 신속하게 표출하여 보안 안정성을 제공합니다.
+* **권한 위임 및 한계 설정** — 애플리케이션 개발 팀이 플랫폼 인프라 팀이 지정한 안전한 컴플라이언스 프레임워크 한도 안에서 신속히 개발 작업을 진행하도록 지원하며, 비즈니스 자율성으로 인해 보안 및 규격 표준이 타협되지 않도록 방지합니다.
 
-=== Addressing Policies in a Single Cluster with Region
+=== 리전 단일 Cluster 대상 Policy 선언
 
-The EMEA - European Union's - General Data Protection Regulation (GDPR) is one of the most comprehensive data protection frameworks in the world. It also comes with a lot of headaches for organizations that operate in the EU. For Kubernetes clusters operating in EMEA, GDPR imposes specific technical requirements that must be codified as policy.
+EMEA 영역에 적용되는 유럽연합(EU)의 General Data Protection Regulation (GDPR)은 전 세계에서 가장 정교하고 포괄적인 데이터 보호 프레임워크 중 하나입니다. 동시에 EU에서 비즈니스를 영위하는 수많은 조직들에 복잡한 엔지니어링 문제를 안겨 주기도 합니다. EMEA 영역에서 작동되는 Kubernetes cluster의 경우, GDPR 규제에 적합한 구체적인 기술 규정 요소를 policy 형태로 코드화해야 합니다.
 
-Let's deploy 3 policies to the EMEA cluster to address the core pillars of GDPR's technical requirements: 
-- **data residency labeling** (Articles 44-49 — ensuring sovereignty namespaces exist with proper classification metadata)
-- **data protection by design** (Article 25 — network isolation)
-- and **security of processing** (Article 32 — pod security hardening).
+GDPR의 핵심 기술 요구 사항을 만족시키기 위해 EMEA cluster에 다음 세 가지 policy를 배포하겠습니다:
+- **data residency labeling** (Articles 44-49 — 적절한 분류 메타데이터를 가진 주권 namespace가 존재하는지 보장)
+- **data protection by design** (Article 25 — 네트워크 격리)
+- **security of processing** (Article 32 — pod 보안 강화)
 
-=== Deploying Policies to the EMEA Managed Cluster
+=== EMEA Managed Cluster에 Policy 배포
 
-
-.Procedure
-. From the Fleet Management Console Click on the *+ sign* -> *Import YAML* tab.
+.실습 절차
+. Fleet Management Console에서 우측 상단의 *+ 기호* -> *Import YAML (YAML 가져오기)* 탭을 클릭하십시오.
 +
 image::02-rhacm-yaml.png[RHACM YAML policy editor, link=self, window=blank, width=100%]
 
-. Next, paste the following YAML Click *Create*
+. 다음으로, 아래의 YAML을 복사해 넣은 다음 *Create* 버튼을 클릭하십시오:
 +
 [source,yaml,subs="+macros,+attributes",role="copypaste"]
 ----
@@ -409,38 +408,37 @@ image::02-rhacm-yaml-1.png[RHACM YAML policy applied, link=self, window=blank, w
 +
 [IMPORTANT]
 ====
-GDPR compliance starts with having clearly labeled namespaces. Labels and annotations allow policies to target GDPR-restricted workloads, support audit requirements, and enforce data residency. This policy requires that every EMEA cluster includes two key namespaces: `gdpr-workloads` (fully labeled for compliance) and `data-residency-emea` (for strict EU-only workloads). Proper labeling is essential for demonstrating GDPR compliance to regulators.
+GDPR 컴플라이언스는 namespace에 명확하게 레이블링을 수행하는 것부터 시작됩니다. 레이블과 어노테이션(annotation)을 사용하면 policy가 GDPR 제한 workload를 식별하고, 감사 요구 사항을 지원하며, 데이터 보존 규정을 적용할 수 있습니다. 이 policy는 모든 EMEA cluster에 두 개의 핵심 namespace, 즉 `gdpr-workloads`(컴플라이언스용 레이블 완벽 지정) 및 `data-residency-emea`(EU 전용 workload용)를 포함할 것을 요구합니다. 컴플라이언스를 보장하고 규제 당국에 증명하는 과정에서 알맞은 레이블 구성은 필수적입니다.
 ====
 +
-. Verify that the YAML was added properly and there are no errors.
+. YAML이 정상적으로 정상 추가되었는지, 기재 오류가 발생하지 않았는지 점검하십시오.
 +
 image::02-rhacm-yaml-2.png[RHACM YAML policy verification, link=self, window=blank, width=100%]
 +
-. Next, Select *Governance* item in the left panel and Navigate to the *Policies* tab. Select *Filter* and check the *policies* namespace, this will show only the policies on this namespace.
+. 다음으로, 좌측 패널에서 *Governance (거버넌스)* 메뉴를 선택하고 *Policies (정책)* 탭으로 이동하십시오. *Filter (필터)*를 선택하고 *policies* namespace를 체크하면, 이 namespace에 배포된 policy만 조회할 수 있습니다.
 +
 image::02-rhacm-yaml-3.png[link=self, window=blank, width=100%]
 
-. Verify that the *policy-emea-namespace-compliance* was created. Notice the Remediation is set to Inform. 
-. Change this to Enforce by selecting the policy --> Actions --> Remediation --> Enforce 
+. *policy-emea-namespace-compliance*가 정상 생성되었는지 점검하십시오. Remediation 설정값이 Inform으로 지정되어 있음에 주목하십시오.
+. policy 항목을 선택한 뒤, --> *Actions (동작)* --> *Remediation (수정 행동)* --> *Enforce (시행)* 버튼을 클릭하여 이를 Enforce 상태로 강제 전환하십시오.
 +
 image::02-rhacm-yaml-4.png[link=self, window=blank, width=100%]
 +
-. It will take a few seconds to execute but you should see the *Cluster Violations* go from Red to Green, indicating that your cluster is now in compliance.
+. 실행에 수 초가 소요되며, 완료 시 *Cluster Violations* 표시가 빨간색에서 초록색으로 바뀝니다. 이는 이제 cluster가 완벽히 컴플라이언스 기준에 규합함을 나타냅니다.
 +
 image::02-rhacm-yaml-5.png[link=self, window=blank, width=100%]
 +
 
 ====
-By creating and informing on the policies you have now ensured that the EMEA cluster is in compliance with the GDPR requirements. All new clusters with the same label will be in compliance with the GDPR requirements.
+policy를 선언하고 설정함으로써, EMEA cluster가 GDPR 기준 요구 사항을 완벽히 충족하도록 조치했습니다. 향후 동일한 레이블로 배포되는 모든 신규 cluster 또한 이 컴플라이언스 요구 사항을 만족하게 됩니다.
 ====
 
-=== Multicluster Management Takeaways
+=== Multicluster Management 핵심 요약
 
-* **Centralized cluster management** — Use RHACM to create, label, and manage OpenShift clusters across multiple regions from one place.
+* **중앙 집중형 Cluster 관리** — RHACM을 사용하여 단일 위치에서 여러 리전에 걸친 OpenShift cluster를 생성하고, 레이블링을 수행하며 관리합니다.
 
-* **Unified workload management** — Operate virtual machines and containers together, with full visibility across clusters.
+* **통합형 Workload 관리** — 다중 cluster 환경 전체에 대한 가시성을 토대로 virtual machine과 container 환경을 동시에 연계 운영합니다.
 
-* **Consistent app deployment** — Deploy and update applications to multiple clusters using Git-backed automation with OpenShift GitOps and RHACM.
+* **일관된 애플리케이션 배포** — OpenShift GitOps 및 RHACM의 Git 기반 자동화를 활용하여 다중 cluster 환경으로 애플리케이션을 선언적으로 배포 및 업데이트합니다.
 
-* **Automated compliance** — Define and enforce policies as code to meet residency and organizational requirements.
-
+* **자동화된 컴플라이언스 보장** — 조직 표준 및 데이터 보존 컴플라이언스를 준수하도록 가이드 policy들을 코드로 정의하고 강제 적용합니다.
