@@ -1,33 +1,33 @@
-= Installation & Verification
+= 설치 및 검증
 :page-toclevels: 1
 
-**Duration:** 10 minutes +
-**Format:** Hands-on verification
+**소요 시간:** 10분 +
+**형식:** 실습 검증
 
 include::partial$console-access.adoc[]
 
-== What You're Checking
+== 확인 사항
 
-These are the same checks you'd run after an installation, after an upgrade, or when something feels off - ClusterOperators, node config, networking, storage, and etcd health.
+이러한 점검 사항들은 설치 직후, 업그레이드 이후, 혹은 클러스터에 이상이 느껴질 때 수행하는 것과 동일합니다 - ClusterOperators, node 설정, 네트워킹, 스토리지, 그리고 etcd 상태(health) 등을 점검합니다.
 
-Your cluster was provisioned using IPI (Installer-Provisioned Infrastructure), which automates compute, network, storage, and DNS. OpenShift also supports UPI, Agent-based/Assisted Installer for bare metal, and managed offerings like Red Hat OpenShift Service on AWS (ROSA) and Azure Red Hat OpenShift (ARO). See the link:https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/installation_overview/index[Installation Documentation, window=blank] for details.
+현재 사용 중인 클러스터는 컴퓨트, 네트워크, 스토리지 및 DNS를 자동으로 구성하는 IPI (Installer-Provisioned Infrastructure) 방식을 사용하여 프로비저닝되었습니다. OpenShift는 UPI, 베어메탈용 Agent-based/Assisted Installer, 그리고 AWS 기반 Red Hat OpenShift Service (ROSA)나 Azure Red Hat OpenShift (ARO)와 같은 매니지드 제품군도 지원합니다. 자세한 내용은 link:https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/installation_overview/index[설치 문서, window=blank]를 참조하십시오.
 
-TIP: Two things that **cannot be changed** after installation: the **pod network CIDR** and the **service network CIDR**. If they overlap with your corporate network, you're rebuilding the cluster.
+TIP: 설치 후에 **변경할 수 없는** 두 가지가 있습니다: 바로 **pod 네트워크 CIDR**과 **service 네트워크 CIDR**입니다. 이 대역이 회사 내부 네트워크와 중복될 경우, 클러스터를 처음부터 다시 구축해야 합니다.
 
-== Cluster Health
+== 클러스터 상태(Health) 점검
 
-=== Step 1: Verify Cluster Operators (Primary Health Check)
+=== 1단계: Verify Cluster Operators 검증 (기본 상태 점검)
 
-**ClusterOperators** are the single source of truth for cluster health. Each operator manages a specific cluster component and reports its status.
+**ClusterOperators**는 클러스터 상태의 단일 진실 공급원(single source of truth)입니다. 각 Operator는 특정 클러스터 구성 요소를 관리하고 상태를 보고합니다.
 
-View all cluster operators:
+모든 Cluster Operator 확인하기:
 
 [source,bash,role="execute"]
 ----
 oc get clusteroperators
 ----
 
-You'll see ~34 operators. Example output:
+약 34개의 Operator가 표시됩니다. 출력 예시:
 
 ----
 NAME                         VERSION   AVAILABLE   PROGRESSING   DEGRADED   SINCE
@@ -48,116 +48,116 @@ openshift-apiserver          4.20.x    True        False         False      3h
 storage                      4.20.x    True        False         False      4h
 ----
 
-**What to check:**
+**확인 사항:**
 
-* **AVAILABLE = True** - Component is functional
-* **PROGRESSING = False** - No upgrade/rollout in progress
-* **DEGRADED = False** - Component is healthy
+* **AVAILABLE = True** - 구성 요소가 정상 동작 중임
+* **PROGRESSING = False** - 업그레이드 또는 배포(rollout)가 진행 중이지 않음
+* **DEGRADED = False** - 구성 요소가 정상 상태(healthy)임
 
-**Healthy cluster:** All operators show `True False False`
+**정상 클러스터:** 모든 Operator가 `True False False`를 나타냅니다.
 
-**If an operator is degraded**, investigate further:
+**만약 특정 Operator가 degraded 상태라면**, 다음 명령어로 추가 조사를 진행하십시오:
 
 [source,bash,role="copypaste"]
 ----
 oc describe clusteroperator <operator-name>
 ----
 
-Check the `Conditions` section for details about why it's degraded.
+degraded 상태가 된 원인에 대한 자세한 정보는 `Conditions` 섹션을 확인하십시오.
 
-**Common issues:**
+**흔한 이슈들:**
 
-* `machine-config` progressing - Nodes are being updated (normal during updates)
-* `monitoring` degraded - Storage or resource issues
-* `authentication` degraded - OAuth or LDAP configuration issues
+* `machine-config`가 progressing 중 - node들이 업데이트되는 중입니다 (업데이트 진행 시 정상적인 현상).
+* `monitoring`이 degraded 상태 - 스토리지 또는 리소스 문제일 수 있습니다.
+* `authentication`이 degraded 상태 - OAuth 또는 LDAP 설정 문제일 수 있습니다.
 
-**Console view:** Switch to the **OCP Console** tab and navigate to **Administration -> Cluster Settings**, then select the **ClusterOperators** tab. The console shows each operator with green/red status icons - degraded operators are immediately visible without scanning a 34-row table. This is faster than CLI for a quick health check.
+**콘솔 뷰:** **OCP Console** 탭으로 전환하고 **Administration (관리) -> Cluster Settings (클러스터 설정)**으로 이동한 후 **ClusterOperators** 탭을 선택하십시오. 콘솔에서는 각 Operator가 녹색/적색 상태 아이콘으로 표시되므로, 34개의 행으로 이루어진 표를 일일이 스캔하지 않고도 degraded 상태의 Operator를 즉시 확인할 수 있습니다. 이는 CLI보다 더 빠르게 상태를 점검할 수 있는 방법입니다.
 
 image::installation-images/clusteroperators-console.png[ClusterOperators in web console, link=self, window=blank]
-=== Step 2: Check Cluster Version and Update Status
+=== 2단계: 클러스터 버전 및 업데이트 상태 확인
 
-View the current cluster version:
+현재 클러스터 버전을 확인하십시오:
 
 [source,bash,role="execute"]
 ----
 oc get clusterversion
 ----
 
-Your output will look similar to:
+출력 결과는 다음과 유사하게 표시됩니다:
 ----
 NAME      VERSION   AVAILABLE   PROGRESSING   SINCE   STATUS
 version   4.20.x    True        False         3h      Cluster version is 4.20.x
 ----
 
-Check which update channel you're subscribed to:
+구독 중인 업데이트 채널(update channel)을 확인하십시오:
 
 [source,bash,role="execute"]
 ----
 oc get clusterversion version -o jsonpath='{.spec.channel}'
 ----
 
-Common channels:
+주요 채널:
 
-* **stable-4.20** - Production-ready releases (recommended)
-* **fast-4.20** - Early access to stable releases
-* **eus-4.20** - Extended Update Support (14-month lifecycle)
-* **candidate-4.20** - Pre-release testing
+* **stable-4.20** - 상용 환경에 바로 사용할 수 있는 릴리스 (권장)
+* **fast-4.20** - 안정화 버전을 빠르게 미리 접해볼 수 있는 채널
+* **eus-4.20** - Extended Update Support (14개월 수명 주기)
+* **candidate-4.20** - 사전 릴리스 테스트 채널
 
-View available updates:
+사용 가능한 업데이트 확인하기:
 
 [source,bash,role="execute"]
 ----
 oc adm upgrade
 ----
 
-If updates are available, you'll see a list of recommended versions. If your cluster is already up to date, you'll see:
+업데이트가 제공되는 경우 권장 버전 목록이 나타납니다. 클러스터가 이미 최신 상태인 경우 다음과 같이 표시됩니다:
 
 ----
 No updates available. You may still upgrade to a specific release image
 with --to-image or wait for new updates to be available.
 ----
 
-In the **OCP Console**, navigate to **Administration -> Cluster Settings**. The **Details** tab shows the current version, update channel, and - when updates are available - a visual upgrade path graph showing the route from your current version to available targets. This is far more informative than the CLI text output for planning upgrades.
+**OCP Console**에서 **Administration (관리) -> Cluster Settings (클러스터 설정)**으로 이동하십시오. **Details (세부 정보)** 탭에서는 현재 버전, 업데이트 채널을 보여주며, 업데이트가 가능한 경우 현재 버전에서 사용 가능한 대상 버전으로의 이동 경로를 시각적 그래프로 나타내 줍니다. 이는 업그레이드 계획을 세울 때 CLI 텍스트 출력보다 훨씬 더 유용한 정보를 제공합니다.
 
 image::installation-images/cluster-settings-update.png[Cluster Settings Details tab showing version and update channel, link=self, window=blank]
-**Key takeaway:** Operators manage cluster updates. When updates are available, you can upgrade with a single command: `oc adm upgrade --to=<version>`
+**주요 핵심 사항:** Operator들이 클러스터 업데이트를 관리합니다. 업데이트를 사용할 수 있는 경우, 단일 명령어로 업그레이드를 수행할 수 있습니다: `oc adm upgrade --to=<version>`
 
-== Step 3: Verify Node Configuration
+== 3단계: Node 구성 검증
 
-Beyond the node health you explored in the Platform Overview, there's an important verification step specific to post-installation: **MachineConfigPools**.
+Platform Overview에서 살펴보았던 node 상태 점검 외에도, 설치 이후 단계에 특화된 매우 중요한 검증 단계인 **MachineConfigPools**가 있습니다.
 
-**Check node configuration status:**
+**Node 구성 상태 확인:**
 
 [source,bash,role="execute"]
 ----
 oc get machineconfigpool
 ----
 
-Your output will look similar to:
+출력 결과는 다음과 유사하게 표시됩니다:
 ----
 NAME     CONFIG             UPDATED   UPDATING   DEGRADED   MACHINECOUNT   READYMACHINECOUNT
 master   rendered-master-…  True      False      False      3              3
 worker   rendered-worker-…  True      False      False      0              0
 ----
 
-NOTE: On this compact cluster the worker pool shows 0 machines because all nodes serve both control-plane and worker roles under the master pool.
+NOTE: 이 압축(compact)형 클러스터의 경우, 모든 node가 master 풀의 관리 하에 control-plane 및 worker 역할을 겸임하므로 worker 풀의 머신 수가 0으로 표시됩니다.
 
-**What this shows:**
+**상태 표시 항목 의미:**
 
-* **UPDATED = True** - All nodes have latest configuration
-* **UPDATING = True** - Nodes are being rolled out with new config (normal during changes)
-* **DEGRADED = True** - Configuration failed on some nodes (investigate)
+* **UPDATED = True** - 모든 node가 최신 설정을 정상적으로 반영함
+* **UPDATING = True** - node들에 새로운 설정이 배포되고 있음 (설정 변경 중 정상적인 동작)
+* **DEGRADED = True** - 일부 node에서 구성 적용이 실패함 (조사 필요)
 
-MachineConfigPools manage node-level configuration (kernel arguments, systemd units, etc.) and coordinate rolling updates.
+MachineConfigPools는 node 레벨의 구성(커널 매개변수, systemd 유닛 등)을 관리하며 롤링 업데이트를 조정합니다.
 
-You can also verify this in the console. Navigate to **Compute -> MachineConfigPools**:
+콘솔에서도 이를 검증할 수 있습니다. **Compute (컴퓨트) -> MachineConfigPools (머신 설정 풀)**로 이동하십시오:
 
 image::installation-images/machineconfigpools-console.png[MachineConfigPools showing master and worker pools with Up to date status, link=self, window=blank]
-The green *Up to date* indicators and *Degraded: False* confirm that all node configurations have been applied successfully. During an upgrade or configuration change, you would see the *Update status* change to *Updating* - this view is a quick way to monitor node rollout progress without polling the CLI.
+녹색의 *Up to date* 표시와 *Degraded: False*는 모든 node의 구성이 성공적으로 적용되었음을 확인해 줍니다. 업그레이드나 구성 변경 중에는 *Update status*가 *Updating*으로 바뀌는 것을 볼 수 있습니다. 이 뷰는 CLI를 매번 조회하지 않고도 node의 설정 배포 진행 상태를 빠르게 확인할 수 있는 유용한 수단입니다.
 
-== Step 4: Test Networking (Hands-on)
+== 4단계: 네트워킹 테스트 (실습)
 
-Verify networking works by creating a test application and route:
+테스트 애플리케이션과 route를 생성하여 네트워킹이 원활하게 작동하는지 검증하십시오:
 
 [source,bash,role="execute"]
 ----
@@ -165,7 +165,7 @@ oc new-project install-test 2>/dev/null || oc project install-test
 oc new-app --name=test-app --image=registry.access.redhat.com/ubi9/httpd-24 -n install-test
 ----
 
-Wait for the pod to be running, then create a route:
+pod가 실행(running) 상태가 될 때까지 기다린 후, route를 생성하십시오:
 
 [source,bash,role="execute"]
 ----
@@ -173,31 +173,31 @@ oc rollout status deployment/test-app -n install-test --timeout=60s
 oc create route edge test-app --service=test-app -n install-test
 ----
 
-NOTE: This may take a minute to complete. Only press **Ctrl+C** if it has been running for more than 5 minutes.
+NOTE: 이 작업은 완료하는 데 수 분이 소요될 수 있습니다. 5분 이상 계속 실행되는 경우에만 **Ctrl+C**를 누르십시오.
 
-Test the route:
+route를 테스트하십시오:
 
 [source,bash,role="execute"]
 ----
 curl -sk https://$(oc get route test-app -n install-test -o jsonpath='{.spec.host}') | head -3
 ----
 
-**What this proves:** DNS works, router is functional, TLS certificates auto-generated, and the application is reachable from outside the cluster.
+**이를 통해 증명되는 사항:** DNS가 작동하고, 라우터가 기능하며, TLS 인증서가 자동 생성되었고, 애플리케이션이 클러스터 외부에서 접근 가능한 상태임이 증명됩니다.
 
-TIP: You can also verify the route in the console at **Networking > Routes** (project: `install-test`) - click the route URL to test it directly from the browser.
+TIP: 콘솔의 **Networking (네트워킹) > Routes (라우트)** (프로젝트: `install-test`)에서도 route를 확인할 수 있습니다 - 브라우저에서 직접 route URL을 클릭하여 테스트할 수도 있습니다.
 
-Clean up:
+정리(Clean up):
 
 [source,bash,role="execute"]
 ----
 oc delete project install-test &>/dev/null &
 ----
 
-== Storage & etcd
+== 스토리지 및 etcd
 
-=== Step 5: Test Storage Provisioning
+=== 5단계: 스토리지 프로비저닝 테스트
 
-Verify dynamic storage works by creating a PVC and a pod that mounts it:
+PVC와 이를 마운트하는 pod를 생성하여 동적 스토리지 기능이 정상 동작하는지 점검하십시오:
 
 [source,bash,role="execute"]
 ----
@@ -241,7 +241,7 @@ spec:
 EOF
 ----
 
-Wait for the PVC to bind and the pod to start:
+PVC가 bind되고 pod가 기동하기까지 기다립니다:
 
 [source,bash,role="execute"]
 ----
@@ -254,7 +254,7 @@ done
 oc get pvc test-pvc -n storage-test && oc get pod test-storage -n storage-test
 ----
 
-The PVC should show `Bound` and the pod should be `Running` or `Completed`:
+PVC는 `Bound` 상태여야 하고, pod는 `Running` 또는 `Completed` 상태여야 합니다:
 
 ----
 NAME       STATUS   VOLUME        CAPACITY   ACCESS MODES   STORAGECLASS                           AGE
@@ -264,50 +264,50 @@ NAME           READY   STATUS    RESTARTS   AGE
 test-storage   1/1     Running   0          15s
 ----
 
-TIP: In the console, navigate to **Storage > PersistentVolumeClaims** (project: `storage-test`) to see the PVC status and its bound PersistentVolume.
+TIP: 콘솔의 **Storage (스토리지) > PersistentVolumeClaims (영구 볼륨 청구)** (프로젝트: `storage-test`)로 이동하여 PVC 상태와 바인딩된 PersistentVolume을 확인할 수 있습니다.
 
-Check the pod wrote to the volume successfully:
+pod가 볼륨에 성공적으로 파일 쓰기를 완료했는지 확인하십시오:
 
 [source,bash,role="execute"]
 ----
 oc logs test-storage -n storage-test
 ----
 
-You should see `Storage works!` - confirming that dynamic provisioning, volume attachment, and read/write all function correctly.
+동적 프로비저닝, 볼륨 연결(attachment), 읽기/쓰기 기능이 모두 완벽하게 작동함을 나타내는 `Storage works!` 메시지가 출력되어야 합니다.
 
-Clean up:
+정리(Clean up):
 
 [source,bash,role="execute"]
 ----
 oc delete project storage-test &>/dev/null &
 ----
 
-=== Step 6: Verify etcd Health
+=== 6단계: etcd 상태(Health) 검증
 
-etcd is the distributed key-value store that holds all cluster state. If etcd is unhealthy, everything is unhealthy. Two key metrics to check after installation:
+etcd는 모든 클러스터 상태를 보유하는 분산형 키-값(key-value) 저장소입니다. etcd의 상태가 비정상적이라면, 클러스터 전체가 정상적일 수 없습니다. 설치 후에 반드시 점검해야 할 두 가지 주요 메트릭은 다음과 같습니다:
 
-* **Leader elections** - should be 0 or very low. Frequent leader elections indicate disk I/O problems or network latency between control plane nodes.
-* **Disk sync duration** - if fsync times are consistently above 10ms, etcd performance will suffer and `oc` commands will start timing out.
+* **Leader elections (리더 선출)** - 0에 수렴하거나 아주 낮아야 합니다. 빈번한 리더 선출은 디스크 I/O 문제 또는 control plane node 간의 네트워크 지연(latency)을 의미합니다.
+* **Disk sync duration (디스크 동기화 시간)** - fsync 시간이 계속해서 10ms를 초과하게 되면, etcd 성능이 크게 저하되어 `oc` 명령어 실행 결과의 타임아웃(timeout)이 발생하기 시작합니다.
 
-Check both via the **OCP Console** at **Observe -> Metrics**. Enter this query and click **Run Queries**:
+두 가지 지표 모두 **OCP Console**의 **Observe (관찰) -> Metrics (메트릭)**에서 조회하여 검증하십시오. 다음 쿼리를 입력하고 **Run Queries**를 클릭하십시오:
 
 [source,promql,role="copypaste"]
 ----
 increase(etcd_server_leader_changes_seen_total[24h])
 ----
 
-You should see 0 elections across all etcd members - that's healthy.
+모든 etcd 멤버에서 리더 선출이 0으로 확인된다면 지극히 정상입니다.
 
-Now check disk sync times:
+이제 디스크 동기화 시간을 점검해 보겠습니다:
 
 [source,promql,role="copypaste"]
 ----
 histogram_quantile(0.99, rate(etcd_disk_wal_fsync_duration_seconds_bucket[5m]))
 ----
 
-This shows the 99th percentile WAL fsync latency per etcd member. Values under 10ms are ideal. Workshop clusters may show higher values due to shared storage - that's expected.
+이 쿼리는 각 etcd 멤버별 WAL fsync 지연 시간의 99 백분위수(99th percentile) 값을 보여줍니다. 10ms 미만인 값이 가장 이상적입니다. 실습용 클러스터의 경우에는 스토리지 공유 상태 등의 사유로 이보다 높은 수치가 나올 수 있으나, 이는 예상된 결과입니다.
 
-Also verify the monitoring operator is healthy:
+추가로 monitoring operator가 정상 상태인지 점검하십시오:
 
 [source,bash,role="execute"]
 ----
@@ -319,43 +319,43 @@ NAME         VERSION   AVAILABLE   PROGRESSING   DEGRADED   SINCE   MESSAGE
 monitoring   4.20.x    True        False         False      3h
 ----
 
-== Summary
+== 요약
 
-**What you verified:** ClusterOperators health, cluster version and update channels, node configuration (MachineConfigPools), networking (deploy, route, connectivity), storage provisioning (PVC binding), and etcd health (member status, fsync latency). These are the same checks you'd run after an installation, after an upgrade, or when something feels off.
+**검증 완료 항목:** ClusterOperators 상태(health), 클러스터 버전 및 업데이트 채널, node 구성(MachineConfigPools), 네트워킹(배포, route, 연결성), 스토리지 프로비저닝(PVC 바인딩), 그리고 etcd 상태(health)(멤버 상태, fsync 지연 시간). 이러한 점검 사항들은 설치 직후, 업그레이드 이후, 혹은 클러스터에 이상이 느껴질 때 수행하는 것과 동일합니다.
 
-**Key takeaway:** `oc get clusteroperators` is your primary health check. All operators showing `True False False` means a healthy cluster ready for workloads. Beyond that, ensure the monitoring operator is healthy and verify etcd health.
+**주요 핵심 사항:** `oc get clusteroperators`가 가장 일차적인 상태 점검 방식입니다. 모든 Operator가 `True False False`로 표시되면 해당 클러스터는 정상이고 워크로드를 즉시 실행할 준비가 완료되었음을 의미합니다. 더 나아가, monitoring operator와 etcd의 상태가 정상인지도 함께 검증하십시오.
 
-== How OpenShift Gets Installed
+== OpenShift 설치 방식 이해
 
-This module focused on verifying a running cluster, but admins often get asked how clusters are built. Here is a brief overview of the installation methods available:
+이 모듈에서는 이미 기동 중인 클러스터의 상태 검증에 집중하였으나, 관리자들은 종종 클러스터가 어떻게 생성되는지에 대한 질문을 받곤 합니다. 아래는 이용 가능한 설치 방법들에 대한 간단한 개요입니다:
 
 [cols="1,2,1"]
 |===
-|Method |Description |Best For
+|방법 |설명 |적합한 용도
 
 |**Assisted Installer**
-|Web-based wizard with pre-flight validations and smart defaults. Generates a discovery ISO that handles provisioning automatically.
-|Cloud, on-prem, first-time installs
+|사전 유효성 검사 및 스마트 기본값을 제공하는 웹 기반 마법사입니다. 자동으로 프로비저닝을 처리하는 발견(discovery)용 ISO를 생성합니다.
+|클라우드, 온프레미스, 최초 설치용
 
 |**Agent-based Installer**
-|Offline version of the Assisted Installer. Generates a bootable ISO containing everything needed to deploy, no external services required.
-|Disconnected/air-gapped environments
+|Assisted Installer의 오프라인 버전입니다. 배포에 필요한 모든 구성을 포함하여 외부 서비스가 필요 없는 부팅 가능한 ISO를 생성합니다.
+|폐쇄망/에어갭(air-gapped) 환경
 
 |**IPI (Installer-Provisioned Infrastructure)**
-|The `openshift-install` binary provisions compute, network, and storage automatically using cloud or BMC APIs.
-|Cloud platforms (AWS, Azure, GCP), bare metal with BMC
+|`openshift-install` binary가 클라우드 또는 BMC API를 사용하여 컴퓨트, 네트워크, 스토리지를 자동으로 프로비저닝합니다.
+|클라우드 플랫폼(AWS, Azure, GCP), BMC 지원 베어메탈
 
 |**UPI (User-Provisioned Infrastructure)**
-|You provision the infrastructure yourself, then run the installer to deploy OpenShift on top. Maximum control and customization.
-|Existing infrastructure, custom networking, compliance requirements
+|사용자가 직접 하부 인프라를 마련한 후, 그 위에 OpenShift를 올리기 위해 설치 도구를 구동합니다. 뛰어난 제어력 및 맞춤 커스터마이징이 가능합니다.
+|기존 구축된 인프라, 커스텀 네트워킹, 컴플라이언스 준수가 필요한 환경
 |===
 
-**How the bootstrap process works:** Every OpenShift install starts with a temporary bootstrap node that runs the control plane components long enough to bring up the permanent control plane. Once the permanent control plane is running, the bootstrap node is removed. Each node boots from an Ignition config, a machine configuration file that tells RHCOS (Red Hat Enterprise Linux CoreOS) how to configure itself, what services to run, and where to find the cluster.
+**부트스트랩(bootstrap) 프로세스 동작 원리:** 모든 OpenShift 설치는 영구적인 control plane이 활성화되기 전까지 제어 평면 구성 요소를 일시적으로 호스팅하여 기동을 돕는 임시 부트스트랩 node의 기동으로부터 출발합니다. 영구 control plane이 완전히 기동하고 나면 부트스트랩 node는 인프라에서 자동 제거됩니다. 각 node는 RHCOS(Red Hat Enterprise Linux CoreOS)가 스스로를 어떻게 구성하고 어떤 서비스를 실행할지, 그리고 클러스터를 어디서 찾아 연결할지 설명하는 머신 구성 파일인 Ignition 설정 정보로부터 부팅합니다.
 
-For full details, see the link:https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html-single/installation_overview/index[Installation Overview, window=blank].
+자세한 세부 사항은 link:https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html-single/installation_overview/index[설치 개요, window=blank]에서 확인할 수 있습니다.
 
-=== Additional Resources
+=== 추가 리소스
 
-* **Installing OpenShift:** link:https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/installation_overview/index[Installation Documentation, window=blank]
-* **Verifying Cluster Status:** link:https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/support/troubleshooting#verifying-node-health[Troubleshooting Guide, window=blank]
-* **ClusterOperators Reference:** link:https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/operators/operator-reference[Operator Reference, window=blank]
+* **OpenShift 설치 가이드:** link:https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/installation_overview/index[설치 문서, window=blank]
+* **클러스터 상태 점검:** link:https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/support/troubleshooting#verifying-node-health[트러블슈팅 가이드, window=blank]
+* **ClusterOperators 레퍼런스:** link:https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/operators/operator-reference[Operator 레퍼런스, window=blank]
