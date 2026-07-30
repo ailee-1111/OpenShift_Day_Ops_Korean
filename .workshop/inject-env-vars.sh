@@ -142,6 +142,12 @@ fi
 
 echo "=== Antora injection complete ==="
 
+# Copy the updated default-site.yml to site.yml (since Antora playbook might be configured to use site.yml)
+if [ -f "$SITE_FILE" ]; then
+    echo "Copying ${SITE_FILE} to ${REPO_DIR}/site.yml..."
+    cp "$SITE_FILE" "${REPO_DIR}/site.yml"
+fi
+
 # ==============================================================================
 # Generate ui-config.yml with conditional tabs based on enabled modules
 # OCP Console and Terminal are always shown (base workloads)
