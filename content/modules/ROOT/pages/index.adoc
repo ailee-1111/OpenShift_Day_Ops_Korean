@@ -132,13 +132,13 @@ TIP: 인증 오류가 발생하는 경우 **Try Again (다시 시도)**을 클�
 | *비밀번호:* | {openshift_cluster_admin_password}
 |===
 
-=== 2단계: Administrator 뷰로 전환
+#=== 2단계: Administrator 뷰로 전환
 
-콘솔 왼쪽 상단에서 퍼스펙티브 전환 드롭다운을 볼 수 있습니다. 이 드롭다운을 클릭하고 **Administrator (어드민)**를 선택하십시오.
+#콘솔 왼쪽 상단에서 퍼스펙티브 전환 드롭다운을 볼 수 있습니다. 이 드롭다운을 클릭하고 **Administrator (어드민)**를 선택하십시오.
 
-=== 3단계: 대시보드 개요
+=== 2단계: 대시보드 개요
 
-**Administrator (어드민)** 뷰로 이동한 후, **Home (홈) → Overview (개요)** 메뉴에서 **Overview (개요)** 대시보드를 확인할 수 있습니다.
+**Home (홈) → Overview (개요)** 메뉴에서 **Overview (개요)** 대시보드를 확인할 수 있습니다.
 
 image::ocp-dashboard-overview.png[OpenShift Administrator 대시보드 개요, link=self, window=blank]
 **확인해야 할 주요 영역:**
@@ -178,7 +178,7 @@ prometheus-operator-bb6c949f9-6rpnl                     2/2     Running   0     
 
 **메트릭 확인 (Console)**
 
-1. 콘솔에서 **Observe (관찰) → Dashboards (대시보드)** 메뉴로 이동하십시오.
+1. 콘솔에서 **Observe (모니터링) → Dashboards (대시보드)** 메뉴로 이동하십시오.
 2. **Dashboard (대시보드)**로 레이블이 지정된 드롭다운을 클릭하십시오 (기본적으로 "API Performance"로 설정되어 있을 수 있습니다).
 3. 드롭다운 목록에서 **Kubernetes / Compute Resources / Cluster**를 선택하십시오.
 4. 실시간 메트릭 정보를 확인할 수 있습니다:
@@ -192,7 +192,7 @@ image::observe-cluster-metrics-dashboard.png[Kubernetes 클러스터 메트릭 �
 
 **Prometheus 쿼리 실행 (고급)**
 
-1. **Observe (관찰) → Metrics (메트릭)** 메뉴로 이동하십시오.
+1. **Observe (모니터링) → Metrics (메트릭)** 메뉴로 이동하십시오.
 2. 다음 PromQL 쿼리를 작성해 보십시오:
 +
 [source,role="copypaste"]
@@ -325,7 +325,7 @@ NOTE: 노드 이름과 개수는 배포 방식에 따라 다를 수 있습니다
 
 **노드 세부 정보 확인 (Console)**
 
-1. **Compute (컴퓨트) → Nodes (노드)** 메뉴로 이동하십시오.
+1. **Compute (컴퓨팅) → Nodes (노드)** 메뉴로 이동하십시오.
 +
 image::compute-nodes-menu.png[Nodes 옵션이 표시된 Compute 메뉴, link=self, window=blank]
 +
@@ -363,7 +363,7 @@ cluster-xxxxx-worker-0         0         0                             20h
 
 In a production cloud deployment, you'd see multiple MachineSets (one per availability zone) with active worker replicas that can be scaled up or down.
 
-콘솔 상에서는 **Compute (컴퓨트) -> MachineSets (머신셋)** 경로를 통해 이를 추적할 수 있습니다:
+콘솔 상에서는 **Compute (컴퓨팅) -> MachineSets (머신셋)** 경로를 통해 이를 추적할 수 있습니다:
 
 image::machinesets-console.png[콤팩트 클러스터에서 0/0으로 표시된 worker MachineSet 개요를 보여주는 MachineSets 콘솔 뷰, link=self, window=blank]
 실제 운영용 프로덕션 환경에서는 이 화면을 통해 각 MachineSet에 연결된 구체적 머신 장비 개수, 장치 인스턴스 타입, 실시간 CPU 및 메모리 프로필 등이 표시되며, 관리자는 원하는 목표 수치(desired count)를 콘솔 상에서 직접 수정하여 마우스 클릭 몇 번만으로 인프라 확장 제어를 실행할 수 있습니다.
@@ -411,7 +411,7 @@ version   4.x       True        False         32m     Cluster version is 4.x
 
 **업그레이드 가능 목록 확인 (Console)**
 
-1. **Administration (행정) → Cluster Settings (클러스터 설정)** 메뉴로 진입하십시오.
+1. **Administration (관리) → Cluster Settings (클러스터 설정)** 메뉴로 진입하십시오.
 +
 image::cluster-settings-details.png[클러스터 설정의 Details 탭, link=self, window=blank]
 +
