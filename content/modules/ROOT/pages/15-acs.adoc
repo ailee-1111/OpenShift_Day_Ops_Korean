@@ -321,7 +321,7 @@ tmux new-session \; split-window -v \; attach
 oc get events -n patient-portal -w
 ----
 +
-. *Ctrl+b, o*를 눌러 인접 창으로 제어 포커스를 이동시키십시오 (먼저 Ctrl+b를 누른 후 잇따라 o를 타이핑합니다).
+. *Ctrl+b+o*를 눌러 인접 창으로 제어 포커스를 이동시키십시오.
 +
 [IMPORTANT]
 ====
@@ -364,7 +364,7 @@ ERROR: Failed to open apk database: Permission denied
 +
 NOTE: *Unable to lock database: Permission denied* 메시지가 나타나는 것은 매우 정상입니다. OpenShift가 pod 보안 규정 덕분에 pod의 root(sudo) 권한 획득 행위를 원천적으로 통제하고 있기 때문입니다.
 +
-. 아래 하단에 나열되는 oc get events의 tmux 화면을 살pi십시오. RHACS가 패키지 관리자의 구동 시도를 즉각 발견하고 해당 pod를 강제로 소멸(delete)시켜 폐기 조치했음을 보여 줍니다:
+. 아래 하단에 나열되는 oc get events의 tmux 화면을 살피십시오. RHACS가 패키지 관리자의 구동 시도를 즉각 발견하고 해당 pod를 강제로 소멸(delete)시켜 폐기 조치했음을 보여 줍니다:
 +
 [source,texinfo,subs="attributes"]
 ----
