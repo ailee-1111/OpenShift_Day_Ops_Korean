@@ -1,0 +1,3 @@
+# Showroom Namespace에서 showroom content 컨테이너를 대상으로 주입 스크립트 실행
+oc exec deployment/showroom -n <showroom-namespace> -c content -- bash -c '/showroom/repo/.workshop/inject-env-vars.sh'
+#스크립트 실행 완료 후, Antora가 자동으로 변경 사양을 감지해 가이드를 재빌드하며 선택한 모듈만 정상 노출됩니다.
