@@ -178,10 +178,16 @@ oc rsh -n postgresql-spiffe-client -c postgresql-spiffe-client deployment/postgr
 +
 [source,bash,subs="+macros,+attributes",role=execute]
 ----
+#oc rsh -n postgresql-spiffe-client -c postgresql-spiffe-client deployment/postgresql-spiffe-client \
+#  psql "host=postgresql-spiffe.postgresql-spiffe.svc port=5432 user=postgresql_spiffe dbname=testdb sslmode=verify-full #sslcert=/opt/postgresql-certs/svid.pem sslkey=/opt/postgresql-certs/svid.key sslrootcert=/opt/postgresql-certs/svid_bundle.pem" \
+#  -c '\conninfo' \
+#  -c 'SELECT ssl_is_used();' \
+#  -c 'SELECT version();'
+
 oc rsh -n postgresql-spiffe-client -c postgresql-spiffe-client deployment/postgresql-spiffe-client \
   psql "host=postgresql-spiffe.postgresql-spiffe.svc port=5432 user=postgresql_spiffe dbname=testdb sslmode=verify-full sslcert=/opt/postgresql-certs/svid.pem sslkey=/opt/postgresql-certs/svid.key sslrootcert=/opt/postgresql-certs/svid_bundle.pem" \
   -c '\conninfo' \
-  -c 'SELECT ssl_is_used();' \
+  -c 'SELECT ssl, version, cipher FROM pg_stat_ssl WHERE pid = pg_backend_pid();' \
   -c 'SELECT version();'
 ----
 +
