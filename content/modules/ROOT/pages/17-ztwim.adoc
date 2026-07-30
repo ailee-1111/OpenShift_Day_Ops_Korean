@@ -260,6 +260,10 @@ oc delete pod unauthorized-client -n postgresql-spiffe-client
 ----
 tmux new-session \; split-window -v \; attach
 ----
+[IMPORTANT]
+====
+만일 화면 분할이 되지 않고 오류가 발생한다면, Terminal 탭을 새로고침 한 후 다시 명령어를 시도합니다. 
+====
 +
 . 첫 번째 분할 화면에서 `spiffe-helper` 로그를 실시간으로 확인합니다:
 +
@@ -268,7 +272,7 @@ tmux new-session \; split-window -v \; attach
 oc logs -n postgresql-spiffe-client -l app=postgresql-spiffe-client -c spiffe-helper --tail=20 -f
 ----
 +
-. *Ctrl+b*를 누른 다음 *o*를 입력하여 두 번째 화면으로 전환합니다.
+. *Ctrl+b+o*를 입력하여 두 번째 화면으로 전환합니다.
 +
 [IMPORTANT]
 ====
