@@ -10,3 +10,12 @@
   만약 특정 행사에 제공할 모듈 구성이 미리 확정되어 있다면, 새로 등록할 한국어 번역 Git 리포지토리 내의 default-site.yml 파일에서 제외할 모듈의 플래그를 아예 'false'로 명시적으로 수정하여 커밋한 뒤
   등록하는 방법도 가능합니다.
   (예: 가상화 모듈을 안 쓸 경우, 번역 Git의 default-site.yml에서 module_enable_virt: 'false'로 선언하여 푸시)
+
+
+
+***최종***
+
+
+oc exec deployment/showroom -n showroom-mtnv5-1 -c content -- bash -c '/showroom/repo/.workshop/inject-env-vars.sh && cd /showroom/repo && antora site.yml --to-dir=/showroom/www'
+
+
