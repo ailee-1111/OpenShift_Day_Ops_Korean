@@ -5,7 +5,7 @@
 
 **소요 시간:** 20분 +
 **형식:** 핸즈온 실습 +
-**대상 아우디언스:** Security Engineers, Platform Engineers, IT Operations
+**대상 참석자:** Security Engineers, Platform Engineers, IT Operations
 
 include::partial$console-access.adoc[]
 
